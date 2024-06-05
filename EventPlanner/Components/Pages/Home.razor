@@ -1,0 +1,1117 @@
+﻿@page "/"
+
+
+
+<div>
+<div style="display:flex; flex-direction:column; align-items:center; margin-bottom:5px">
+    <h1>Event Planner</h1>
+    <h3>Syncfusion Tech Week</h3>
+</div>
+    <div>
+        <div class="e-switch-control">
+            <label class="showhide"> Activity </label>
+            <SfSwitch ValueChange="Resource" @bind-Checked="@Check" TChecked="bool"></SfSwitch>
+            <label class="showhide"> Managing Person </label>
+        </div>
+
+        <SfGantt DataSource="@EventCollection" @ref="Gantt" Height="70vh" Width="100%" RowHeight="50" ProjectStartDate="@projectStart" ProjectEndDate="@projectEnd" GridLines="Syncfusion.Blazor.Gantt.GridLine.Vertical" AllowRowDragAndDrop="true" AllowReordering AllowFiltering="true" AllowResizing="true" HighlightWeekends="true" EnablePredecessorValidation="true" ScrollToTaskbarOnClick="true" ViewType="@viewType"
+                Toolbar="@(new List<string>(){ "Add",  "Delete",  "ExpandAll", "CollapseAll"})"
+                AllowSelection="true" TreeColumnIndex="1">
+        <GanttResourceFields Group="ResourceGroup" Resources="@ResourceCollection" Id="ResourceId" Name="ResourceName" Unit="Unit" TResources="ResourceAlloacteData"></GanttResourceFields>
+        <GanttTaskFields Id="Id" Name="PlanningName" StartDate="StartDate" EndDate="EndDate" Duration="Duration" Progress="Progress"
+                             Dependency="Predecessor" ParentID="ParentId" ResourceInfo="Resources"  Indicators="Indicators"></GanttTaskFields>
+        <GanttEditSettings AllowAdding="true" AllowDeleting="true" AllowTaskbarEditing="true" ShowDeleteConfirmDialog="true"></GanttEditSettings>
+        <GanttColumns>
+            <GanttColumn Field="Id" Visible="false"></GanttColumn>
+            <GanttColumn Field="PlanningName" HeaderText="@NameText" ClipMode="Syncfusion.Blazor.Grids.ClipMode.EllipsisWithTooltip" AllowFiltering="true" IsFrozen="true"></GanttColumn>
+            <GanttColumn Field="StartDate" HeaderText="Commencement Date" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="EndDate" HeaderText="Completion Date" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="Duration" HeaderText="Time Span" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="Progress" HeaderText="Completion" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="Status" HeaderText="Progress Status" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="Resources" HeaderText="Managing Person" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="Priority" HeaderText="Importance" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="MoneyAllocated" HeaderText="Estimated Expenses" Format="C" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="MoneySpent" HeaderText="Expenditure" Format="C" AllowFiltering="false"></GanttColumn>
+            <GanttColumn Field="Predecessor" HeaderText="Dependencies" AllowFiltering="false"></GanttColumn>
+        </GanttColumns>
+        <GanttHolidays>
+            @{
+                foreach(var holiday in HolidayCollection)
+                {
+                    <GanttHoliday From="holiday.Date" To="holiday.Date" Label="@holiday.HolidayName" CssClass="e-custom-holiday"></GanttHoliday>
+                }
+            }
+        </GanttHolidays>
+        <GanttLabelSettings LeftLabel="PlanningName" RightLabel="Resources" TValue="EventPlanningData">
+            <RightLabelTemplate>
+                    @{
+                        var datas = context as EventPlanningData;
+                        if (datas.Resources != null)
+                        {
+                            switch (datas.Resources[0]?.ResourceId)
+                            {
+                                case 1:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Martin%20Tamer.png" />
+                                    </div>
+                                    break;
+                                case 2:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Rose%20Fuller.png" />
+                                    </div>
+                                    break;
+                                case 3:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Margaret%20Buchanan.png" />
+                                    </div>
+                                    break;
+                                case 4:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20King.png" />
+                                    </div>
+                                    break;
+                                case 5:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Davolio%20Fuller.png" />
+                                    </div>
+                                    break;
+                                case 6:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20Buchanan.png" />
+                                    </div>
+                                    break;
+                                case 7:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Jack%20Davolio.png" />
+                                </div>
+                                break;
+                                case 8:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Van%20Jack.png" />
+                                    </div>
+                                    break;
+                                case 9:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style = "height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/kanban/images/Nancy%20Davloio.png" />
+                                    </div>
+                                    break;
+                                case 10:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/kanban/images/Janet%20Leverling.png" />
+                                    </div>
+                                    break;
+                                case 11:
+                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
+                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/kanban/images/Laura%20Callahan.png" />
+                                    </div>
+                                    break;
+                            }
+                        }
+
+                    }
+            </RightLabelTemplate>
+        </GanttLabelSettings>
+        <GanttTooltipSettings ShowTooltip="true" TValue="EventPlanningData">
+                <TaskbarTemplate>
+                    @{
+                        var data = context as EventPlanningData;
+                        <div>
+                        <div class="text-center p-2">
+                                <img style="height:28px; width:28px;filter: brightness(0) invert(1);" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                        </div>
+                            <table class="table" style="color:#ffffff">
+                            @if(viewType == ViewType.ProjectView || data.ParentId != null)
+                            {
+                                <tr>
+                                    <td>
+                                        Activity
+                                    </td>
+                                    <td>
+                                        : @data.PlanningName
+                                    </td>
+                                </tr>
+                                }
+                            else
+                            {
+                                <tr>
+                                    <td>
+                                            Managing Person
+                                    </td>
+                                    <td>
+                                        : @data.PlanningName
+                                    </td>
+                                </tr>
+                                    
+                                }
+                             <tr>
+                                <td>
+                                    Commencement Date
+                                </td>
+                                <td>
+                                   : @(data.StartDate != null ? data.StartDate.Value.ToString("dd/MM/yyyy") : "")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                     Completion Date
+                                </td>
+                                <td>
+                                    : @(data.EndDate != null ? data.EndDate.Value.ToString("dd/MM/yyyy") : "")
+                                </td>
+                            </tr>
+                            @foreach (var resource in ResourceCollection)
+                            {
+                                if(resource != null && data.Resources != null){
+                                    if(data.Resources[0]?.ResourceId == resource.ResourceId){
+                                        <tr>
+                                            <td>
+                                            Managing Person
+                                            </td>
+                                            <td>
+                                            : @resource.ResourceName
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                            <tr>
+                                <td>
+                                        Completion
+                                </td>
+                                <td>
+                                    : @data.Progress %
+                                </td>
+                            </tr>
+                        </table>
+                        </div>
+                    }
+                </TaskbarTemplate>
+                <IndicatorTemplate>
+                    @{
+                        var indicator = context as GanttIndicator;
+                        <table class="table">
+                            <tr>
+                                <td class="td-tooltip" style="width: 100%; color:#ffffff">
+                                    Description: @indicator.Tooltip
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                </IndicatorTemplate>
+            </GanttTooltipSettings>
+        <GanttTimelineSettings>
+                <GanttTopTierSettings Unit="TimelineViewMode.Week" Format="MMM, yyyy"></GanttTopTierSettings>
+                <GanttBottomTierSettings Unit="TimelineViewMode.Day" Format="dd"></GanttBottomTierSettings>
+            </GanttTimelineSettings>
+        <GanttSplitterSettings ColumnIndex="5"> </GanttSplitterSettings>
+            <GanttTemplates TValue="EventPlanningData">
+                <TaskbarTemplate>
+                    @{
+                        var task = context as EventPlanningData;
+                        var taskModel = GetTaskModelData(task);
+                        var progresswidth = taskModel.ProgressWidth;
+                        <div class="e-gantt-child-taskbar e-gantt-child-taskbar-inner-div" style="height:31px; background-color: rgba(201, 167, 244);outline-color: rgb(187 ,140 ,240) !important;outline: 1px solid;border-radius:4px;">
+                            <div class="e-gantt-child-progressbar-inner-div e-gantt-child-progressbar" style="height:37px;background-color: rgb(187 ,140 ,240);border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin-left:10px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                            </div>
+                        </div>
+                    }
+                </TaskbarTemplate>
+                <ParentTaskbarTemplate>
+                    @{
+                        var task = context as EventPlanningData;
+                        var taskModel = GetTaskModelData(task);
+                        var progresswidth = taskModel.ProgressWidth;
+                        <div class="e-gantt-parent-taskbar-inner-div e-gantt-parent-taskbar e-gantt-parent-taskbar-div" style="height:31px; background-color:#CED4DA ;outline-color:#ADB5BD !important;outline: 1px solid;border-radius:4px;">
+                            <div class="e-gantt e-gantt-chart e-gantt-parent-progressbar-inner-div" style="height:37px;background-color: #ADB5BD;border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin-left:10px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                            </div>
+                        </div>
+                    }
+                </ParentTaskbarTemplate>
+            </GanttTemplates>
+            <GanttEvents DataBound="DataBoundHandler" TaskbarEdited="TaskbarEdited" TValue="EventPlanningData" RowDropping="RowDropping"></GanttEvents>
+    </SfGantt>
+    </div>
+
+<style>
+
+    .e-gantt .e-gantt-chart .e-custom-holiday {
+        background-color: rgb(182, 214, 171);
+    }
+
+        .e-right-label-inner-div {
+            margin-left: 10px;
+        }
+        .showhide {
+            font-size: 15px;
+            font-weight: 400;
+            margin-bottom: 1px;
+            padding: 10px;
+        }
+
+        .e-switch-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .e-tooltip-wrap.e-popup {
+            background-color: #212529;
+            border-color: #212529;
+           
+        }
+
+        .td-tooltip {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        i.e-btn-icon.e-border-box.e-icons.e-icon-left.e-gantt::before {
+            margin-left: 10px;
+        }
+
+        .e-label.e-indicator-span {
+            margin-top: 18px !important;
+        }
+
+</style>
+</div>
+@code {
+    public SfGantt<EventPlanningData> Gantt { get; set; }
+    private List<EventPlanningData> EventCollection { get; set; }
+    private List<ResourceAlloacteData> ResourceCollection { get; set; }
+    private DateTime projectStart = new DateTime(2024, 10, 12);
+    private DateTime projectEnd = new DateTime(2025, 02, 14);
+    private ViewType viewType { get; set; } = ViewType.ProjectView;
+    private bool OnLoad = false;
+    private Boolean Check = false;
+    private string NameText = "Activity";
+    protected override void OnInitialized()
+    {
+        this.EventCollection = EventPlanning().ToList();
+        this.ResourceCollection = GetResources;
+        foreach (EventPlanningData data in EventCollection)
+        {
+            if (!string.IsNullOrEmpty(data.EndDate.Value.ToString()))
+            {
+                DateTime? indicatorDate;
+                indicatorDate = data.EndDate.Value.AddDays(1);
+                data.Indicators = new List<GanttIndicator>
+                {
+                    new GanttIndicator
+                    {
+                        IconClass = "e-btn-icon e-border-box e-icons e-icon-left e-gantt e-border-box::before",
+                        Date = indicatorDate.Value,
+                        Tooltip = data.Description
+                    }
+                };
+            }
+        }
+    }
+    public class Holiday
+    {
+        public int Id { get; set; }
+        public string? HolidayName { get; set; }
+        public DateTime Date { get; set; }
+    }
+    public static List<Holiday> HolidayCollection = new List<Holiday>()
+    {
+        new Holiday(){ Id = 1, HolidayName = "Columbus Day", Date = new DateTime(2024, 10, 14) },
+        new Holiday(){ Id = 2, HolidayName = "Halloween", Date = new DateTime(2024, 10, 31) },
+        new Holiday(){ Id = 3, HolidayName = "Veterans Day", Date = new DateTime(2024, 11, 11) },
+        new Holiday(){ Id = 4, HolidayName = "Thanksgiving Day", Date = new DateTime(2024, 11, 28) },
+        new Holiday(){ Id = 5, HolidayName = "Christmas Day", Date = new DateTime(2024, 12, 25) },
+    };
+    public class EventPlanningData
+    {
+        public int Id { get; set; }
+        public string PlanningName { get; set; } = string.Empty;
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string Duration { get; set; } = string.Empty;
+        public int Progress { get; set; }
+        public List<ResourceAlloacteData> Resources { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Predecessor { get; set; } = string.Empty;
+        public string Priority { get; set; } = string.Empty;
+        public double MoneySpent { get; set; }
+        public double MoneyAllocated { get; set; }
+        public int? ParentId { get; set; }
+        public List<GanttIndicator>? Indicators { get; set; }
+    }
+    public class ResourceAlloacteData
+    {
+        public int ResourceId { get; set; }
+        public string ResourceName { get; set; } = string.Empty;
+        public double Unit { get; set; }
+        public string? ResourceGroup { get; set; }
+    }
+    public static List<ResourceAlloacteData> GetResources = new List<ResourceAlloacteData>()
+    {
+        new ResourceAlloacteData() { ResourceId= 1, ResourceName= "Martin Tamer"},
+        new ResourceAlloacteData() { ResourceId= 2, ResourceName= "Rose Fuller" },
+        new ResourceAlloacteData() { ResourceId= 3, ResourceName= "Margaret Buchanan"},
+        new ResourceAlloacteData() { ResourceId= 4, ResourceName= "Fuller King" },
+        new ResourceAlloacteData() { ResourceId= 5, ResourceName= "Davolio Fuller" },
+        new ResourceAlloacteData() { ResourceId= 6, ResourceName= "Fuller Buchanan" },
+        new ResourceAlloacteData() { ResourceId= 7, ResourceName= "Jack Davolio"},
+        new ResourceAlloacteData() { ResourceId= 8, ResourceName= "Tamer Vinet" },
+        new ResourceAlloacteData() { ResourceId= 9, ResourceName= "Nancy Davloio"},
+        new ResourceAlloacteData() { ResourceId= 10, ResourceName= "Janet Leverling" },
+        new ResourceAlloacteData() { ResourceId= 11, ResourceName= "Laura Callahan"},
+    };
+    private async void DataBoundHandler(object args)
+    {
+        await Gantt.AutoFitColumnsAsync(new string[] { "PlanningName", "StartDate", "EndDate", "MoneyAllocated" });
+
+    }
+    private IGanttTaskModel<EventPlanningData> GetTaskModelData(EventPlanningData data)
+    {
+        return Gantt.GetRowTaskModel(data);
+    }
+    public void TaskbarEdited(TaskbarEditedEventArgs<EventPlanningData> args)
+    {
+        foreach (EventPlanningData data in EventCollection)
+        {
+            if (!string.IsNullOrEmpty(data.EndDate.Value.ToString()))
+            {
+                DateTime indicatorDate;
+                indicatorDate = data.EndDate.Value.Date.AddDays(1);
+                data.Indicators = new List<GanttIndicator>
+                {
+                    new GanttIndicator
+                    {
+                        IconClass = "e-btn-icon e-border-box e-icons e-icon-left e-gantt e-border-box::before",
+                        Date = indicatorDate,
+                        Tooltip = data.Description
+                    }
+                };
+            }
+        }
+        Gantt.RefreshAsync();
+    }
+    public void RowDropping(RowDroppingEventArgs<EventPlanningData> args)
+    {
+        Syncfusion.Blazor.TreeGrid.Internal.TreeListItem<EventPlanningData> data = (Syncfusion.Blazor.TreeGrid.Internal.TreeListItem<EventPlanningData>)Gantt.CurrentViewData.ElementAt(args.DropIndex);
+        if (data.DataItem.ParentId != args.Data[0].ParentId || args.Target.ID == " e-dropchild")
+        {
+            args.Cancel = true;
+        }
+    }  
+    public void Resource()
+    {
+        if (viewType == ViewType.ResourceView)
+        {
+            viewType = ViewType.ProjectView;
+            NameText = "Activity";
+        }
+        else
+        {
+            viewType = ViewType.ResourceView;
+            NameText = "Managing Person";
+        }
+        StateHasChanged();
+    }
+    public static List<EventPlanningData> EventPlanning()
+    {
+        List<EventPlanningData> Plans = new List<EventPlanningData>()
+        {  
+             new EventPlanningData() { Id = 1, PlanningName = "Planning", Priority = "Critical", Description="Overview of the event planning process", StartDate = new DateTime(2024, 10, 25), EndDate = new DateTime(2024, 12, 16) },
+             new EventPlanningData() { 
+                 Id = 2,
+                 PlanningName = "Set Goals and Objectives", 
+                 Description=" Define the purpose and goals of the event",
+                 StartDate = new DateTime(2024, 10, 25), 
+                 EndDate = new DateTime(2024, 10, 30), 
+                 Duration = "4", 
+                 Progress = 100,
+                 Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=1} },
+                 ParentId = 1,
+                 Status="Completed",
+                 Priority = "Critical",
+             },
+
+             new EventPlanningData() { 
+                 Id = 3,
+                 PlanningName = "Budget Allocation",
+                 Description="Determine the budget for the event",
+                 StartDate = new DateTime(2024, 10, 25),
+                 EndDate = new DateTime(2024, 10, 29),
+                 Duration = "3",
+                 Progress = 100,
+                 Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=2} },
+                 ParentId = 1,
+                 Status = "Completed",
+                 Priority = "High",
+             },
+
+             new EventPlanningData() { 
+                 Id = 4,
+                 PlanningName = "Selecting Dates and Venue",
+                 Description="Choose suitable dates and venue for the event",
+                 StartDate = new DateTime(2024, 11, 01),
+                 EndDate = new DateTime(2024, 11, 12),
+                 Duration = "7",
+                 Progress = 35,
+                 Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=3} },
+                 ParentId = 1,
+                 Status="In Progress",
+                 Priority = "High",
+                 Predecessor = "2FS,3FS"
+             },
+             new EventPlanningData() { 
+                Id = 5,
+                PlanningName = "Theme Development",
+                Description="Develop a compelling theme or focus for the event",
+                StartDate = new DateTime(2024, 11, 13),
+                EndDate = new DateTime(2024, 11, 15),
+                Duration = "3",
+                Progress = 100,
+                Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=4 } },
+                ParentId = 1,
+                Status="Completed",
+                Priority = "High",
+                Predecessor="4"
+             },
+             new EventPlanningData() { 
+                Id = 6,
+                PlanningName = "Content Planning",
+                Description="Curate a diverse and engaging program agenda",
+                StartDate = new DateTime(2024, 11, 13),
+                EndDate = new DateTime(2024, 11, 18),
+                Duration = "4",
+                Progress = 60,
+                Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=5} },
+                ParentId = 1,
+                Status="In Progress",
+                Priority = "Medium",
+                Predecessor="4"
+            },
+            
+            new EventPlanningData(){
+                Id = 7,
+                PlanningName = "Speaker Acquisition",
+                StartDate = new DateTime(2024, 11, 18),
+                EndDate = new DateTime(2024, 11, 22),
+                Duration = "5",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Description = "Identify and secure influential speakers and thought leaders in the tech industry.",
+                Predecessor="5",
+                MoneyAllocated = 9000,
+                MoneySpent = 0,
+                Priority = "High",
+               
+            },
+            new EventPlanningData(){
+                Id = 8,
+                PlanningName = "Sponsorship Acquisition",
+                StartDate = new DateTime(2024, 11, 25),
+                EndDate = new DateTime(2024, 12, 05),
+                Duration = "8",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="7",
+                MoneyAllocated = 15000,
+                MoneySpent = 0,
+                Priority = "High",
+                Description = "Reach out to potential sponsors to secure financial support and strategic partnerships."
+            },
+            
+            new EventPlanningData(){
+                Id = 9,
+                PlanningName = "Website Development",
+                StartDate = new DateTime(2024, 12, 06),
+                EndDate = new DateTime(2024, 12, 09),
+                Duration = "2",
+                Progress = 43,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
+                Status = "In Progress",
+                ParentId = 1,
+                Predecessor="8",
+                MoneyAllocated = 8000,
+                MoneySpent = 6500,
+                Priority = "High",
+                Description = "Create a professional event website that serves as a central hub for information."
+            },
+            new EventPlanningData(){
+                Id = 10,
+                PlanningName = "Registration Setup",
+                StartDate = new DateTime(2024, 12, 10),
+                EndDate = new DateTime(2024, 12, 11),
+                Duration = "2",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 8,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="9",
+                MoneyAllocated = 5000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Implement an online registration system for attendees."
+            },
+            
+           
+            new EventPlanningData(){
+                Id = 11,
+                PlanningName = "Volunteer Recruitment",
+                StartDate = new DateTime(2024, 11, 19),
+                EndDate = new DateTime(2024, 11, 21),
+                Duration = "3",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="6",
+                MoneyAllocated = 3500,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Recruit and train volunteers to assist with various tasks during the event."
+            },
+            new EventPlanningData(){
+                Id = 12,
+                PlanningName = "Diversity and Inclusion Initiatives",
+                StartDate = new DateTime(2024, 11, 19),
+                EndDate = new DateTime(2024, 11, 22),
+                Duration = "4",
+                Progress = 40,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 9,   } },
+                Status = "In Progress",
+                Predecessor="6",
+                ParentId = 1,
+                MoneyAllocated = 6000,
+                MoneySpent = 4500,
+                Priority = "High",
+                Description = "Implement strategies to ensure diversity and inclusion among participants."
+            },
+            new EventPlanningData(){
+                Id = 13,
+                PlanningName = "Risk Management",
+                StartDate = new DateTime(2024, 11, 19),
+                EndDate = new DateTime(2024, 11, 25),
+                Duration = "5",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 4,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="6",
+                MoneyAllocated = 4000,
+                MoneySpent = 0,
+                Priority = "High",
+                Description = "Develop a comprehensive risk management plan for the event."
+            },
+            new EventPlanningData(){
+                Id = 14,
+                PlanningName = "Community Engagement",
+                StartDate = new DateTime(2024, 11, 19),
+                EndDate = new DateTime(2024, 11, 29),
+                Duration = "8",
+                Progress = 48,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 10,   } },
+                Status = "In Progress",
+                ParentId = 1,
+                Predecessor="6",
+                MoneyAllocated = 6000,
+                MoneySpent = 5500,
+                Priority = "Medium",
+                Description = "Engage with the local tech community and stakeholders to promote the event."
+            },
+            new EventPlanningData(){
+                Id = 15,
+                PlanningName = "Speaker and Sponsor Management",
+                StartDate = new DateTime(2024, 11, 25),
+                EndDate = new DateTime(2024, 11, 26),
+                Duration = "2",
+                Progress = 78,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 5,   } },
+                Status = "In Progress",
+                ParentId = 1,
+                Predecessor="6,7",
+                MoneyAllocated = 8000,
+                MoneySpent = 6550,
+                Priority = "High",
+                Description = "Maintain communication with speakers and sponsors to provide updates and support."
+            },
+            new EventPlanningData(){
+                Id = 16,
+                PlanningName = "Evaluation and Feedback Collection",
+                StartDate = new DateTime(2024, 11, 27),
+                EndDate = new DateTime(2024, 11, 29),
+                Duration = "2",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 11,   } },
+                Status = "Not Started",
+                Predecessor="15",
+                ParentId = 1,
+                MoneyAllocated = 3000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Gather feedback from participants to evaluate the event's success and identify areas for improvement."
+            },
+            new EventPlanningData(){
+                Id = 17,
+                PlanningName = "Post-Event Follow-Up",
+                StartDate = new DateTime(2024, 12, 02),
+                EndDate = new DateTime(2024, 12, 09),
+                Duration = "6",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="16",
+                MoneyAllocated = 5000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Send thank-you emails and provide post-event resources to participants."
+            },
+
+            new EventPlanningData(){
+                Id = 18,
+                PlanningName = "Legacy Planning",
+                StartDate = new DateTime(2024, 12, 10),
+                EndDate = new DateTime(2024, 12, 13),
+                Duration = "4",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 1,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="17",
+                MoneyAllocated = 4500,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Develop strategies to maintain the event's impact beyond its conclusion."
+            },
+            new EventPlanningData(){
+                Id = 19,
+                PlanningName = "Financial Reporting",
+                StartDate = new DateTime(2024, 12, 10),
+                EndDate = new DateTime(2024, 12, 13),
+                Duration = "4",
+                Progress = 23,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
+                Status = "In Progress",
+                ParentId = 1,
+                Predecessor="17",
+                MoneyAllocated = 6000,
+                MoneySpent = 5500,
+                Priority = "Medium",
+                Description = "Prepare financial reports to track expenses and revenue."
+            },
+            new EventPlanningData(){
+                Id = 20,
+                PlanningName = "Legal Compliance",
+                StartDate = new DateTime(2024, 12, 10),
+                EndDate = new DateTime(2024, 12, 12),
+                Duration = "3",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="17",
+                MoneyAllocated = 5000,
+                MoneySpent = 0,
+                Priority = "High",
+                Description = "Ensure compliance with relevant laws and regulations governing events."
+            },
+            new EventPlanningData(){
+                Id = 21,
+                PlanningName = "Team Debriefing",
+                StartDate = new DateTime(2024, 12, 10),
+                EndDate = new DateTime(2024, 12, 13),
+                Duration = "4",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
+                Status = "Not Started",
+                ParentId = 1,
+                Predecessor="17",
+                MoneyAllocated = 3000,
+                MoneySpent = 0,
+                Priority = "High",
+                Description = "Conduct a debriefing session with the event planning team to review lessons learned."
+            },
+
+            new EventPlanningData(){
+                Id = 22,
+                PlanningName = "Crisis Communication Plan",
+                StartDate = new DateTime(2024, 12, 10),
+                EndDate = new DateTime(2024, 12, 16),
+                Duration = "5",
+                Progress = 56,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 11,   } },
+                Status = "In Progress",
+                ParentId = 1,
+                Predecessor="17",
+                MoneyAllocated = 0,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Develop a comprehensive communication plan to address potential crises or emergencies."
+            },
+
+// Promotion
+            new EventPlanningData() { Id = 23, PlanningName = "Promotion", Description="Promote the event through strategic marketing efforts to attract attendees and generate excitement.", StartDate = new DateTime(2024, 11, 07), EndDate = new DateTime(2025, 01, 23) },
+            new EventPlanningData(){
+                Id = 24,
+                PlanningName = "Marketing Strategy",
+                StartDate = new DateTime(2024, 12, 17),
+                EndDate = new DateTime(2024, 12, 19),
+                Duration = "3",
+                Progress = 100,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 4,   } },
+                Status = "Completed",
+                ParentId = 23,
+                MoneyAllocated = 10000,
+                MoneySpent = 10000,
+                Priority = "High",
+                Description = "Develop a comprehensive marketing plan to promote the event through various channels."
+            },
+            new EventPlanningData(){
+                Id = 25,
+                PlanningName = "Content Distribution",
+                StartDate = new DateTime(2024, 12, 20),
+                EndDate = new DateTime(2024, 12, 26),
+                Duration = "4",
+                Progress = 100,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
+                Status = "Completed",
+                ParentId = 23,
+                Predecessor="24",
+                MoneyAllocated = 5000,
+                MoneySpent = 5000,
+                Priority = "High",
+                Description = "Repurpose event content for distribution through online channels."
+            },
+            new EventPlanningData(){
+                Id = 26,
+                PlanningName = "Content Marketing Campaigns",
+                StartDate = new DateTime(2024, 12, 27),
+                EndDate = new DateTime(2025, 01, 03),
+                Duration = "6",
+                Progress = 50,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
+                Status = "In Progress",
+                ParentId = 23,
+                Predecessor="25",
+                MoneyAllocated = 15000,
+                MoneySpent = 7500,
+                Priority = "High",
+                Description = "Develop and execute content marketing campaigns to create buzz and generate interest in the event."
+            },
+            new EventPlanningData(){
+                Id = 27,
+                PlanningName = "Email Marketing",
+                StartDate = new DateTime(2025, 01, 06),
+                EndDate = new DateTime(2025, 01, 07),
+                Duration = "2",
+                Progress = 52,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 9,   } },
+                Status = "In Progress",
+                ParentId = 23,
+                Predecessor="26",
+                MoneyAllocated = 8000,
+                MoneySpent = 4160,
+                Priority = "High",
+                Description = "Implement targeted email marketing campaigns to reach out to potential attendees, sponsors, speakers, and partners."
+            },
+            new EventPlanningData(){
+                Id = 28,
+                PlanningName = "Social Media Advertising",
+                StartDate = new DateTime(2025, 01,08),
+                EndDate = new DateTime(2025, 01, 14),
+                Duration = "5",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 5,   } },
+                Status = "Not Started",
+                ParentId = 23,
+                Predecessor="27",
+                MoneyAllocated = 12000,
+                MoneySpent = 0,
+                Priority = "High",
+                Description = "Utilize paid advertising on social media platforms to increase visibility for the event."
+            },
+            new EventPlanningData(){
+                Id = 29,
+                PlanningName = "Referral Programs",
+                StartDate = new DateTime(2025, 01, 15),
+                EndDate = new DateTime(2025, 01, 23),
+                Duration = "7",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 8,   } },
+                Status = "Not Started",
+                ParentId = 23,
+                Predecessor="28",
+                MoneyAllocated = 5000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Implement a referral program to incentivize existing registrants to invite others to register for the event."
+            },
+
+//Logistics
+            new EventPlanningData() { Id = 30, PlanningName = "Logistics", Description="Coordinate logistics including transportation and accommodation arrangements.", Priority = "High", StartDate = new DateTime(2024, 12, 17), EndDate = new DateTime(2025, 01, 31) },
+            new EventPlanningData(){
+                Id = 31,
+                PlanningName = "Logistics Coordination",
+                StartDate = new DateTime(2024, 12, 17),
+                EndDate = new DateTime(2024, 12, 24),
+                Duration = "6",
+                Progress = 69,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
+                Status = "In Progress",
+                ParentId = 30,
+                MoneyAllocated = 20000,
+                MoneySpent = 10000,
+                Priority = "High",
+                Description = "Manage logistical details such as transportation and accommodation."
+            },
+                new EventPlanningData(){
+                Id = 32,
+                PlanningName = "Technology Infrastructure",
+                StartDate = new DateTime(2024, 12, 26),
+                EndDate = new DateTime(2025, 01, 01),
+                Duration = "5",
+                Progress = 76,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
+                Status = "In Progress",
+                ParentId = 30,
+                Predecessor="31",
+                MoneyAllocated = 25000,
+                MoneySpent = 19000,
+                Priority = "High",
+                Description = "Set up necessary technology infrastructure for the event."
+            },
+            new EventPlanningData(){
+                Id = 33,
+                PlanningName = "On-Site Logistics",
+                StartDate = new DateTime(2025, 01, 02),
+                EndDate = new DateTime(2025, 01, 03),
+                Duration = "2",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
+                Status = "Not Started",
+                ParentId = 30,
+                Predecessor="32",
+                MoneyAllocated = 15000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Manage on-site logistics to ensure smooth operations during the event."
+            },
+            new EventPlanningData(){
+                Id = 34,
+                PlanningName = "Transportation Management",
+                StartDate = new DateTime(2025, 01, 06),
+                EndDate = new DateTime(2025, 01, 08),
+                Duration = "3",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
+                Status = "Not Started",
+                ParentId = 30,
+                Predecessor="33",
+                MoneyAllocated = 10000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Coordinate transportation for attendees, speakers, and staff to and from the event venue."
+            },
+            new EventPlanningData(){
+                Id = 35,
+                PlanningName = "Accommodation Arrangements",
+                StartDate = new DateTime(2025, 01, 09),
+                EndDate = new DateTime(2025, 01, 10),
+                Duration = "2",
+                Progress = 67,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 4,   } },
+                Status = "In Progress",
+                ParentId = 30,
+                Predecessor="34",
+                MoneyAllocated = 8000,
+                MoneySpent = 5360,
+                Priority = "High",
+                Description = "Assist with arranging accommodations for out-of-town attendees, speakers, and staff."
+            },
+            new EventPlanningData(){
+                Id = 36,
+                PlanningName = "Equipment Rentals",
+                StartDate = new DateTime(2025, 01, 13),
+                EndDate = new DateTime(2025, 01, 16),
+                Duration = "4",
+                Progress = 89,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
+                Status = "In Progress",
+                ParentId = 30,
+                Predecessor="35",
+                MoneyAllocated = 18000,
+                MoneySpent = 16020,
+                Priority = "Medium",
+                Description = "Arrange for the rental of audiovisual equipment, furniture, signage, and other necessary items for the event."
+            },
+            new EventPlanningData(){
+                Id = 37,
+                PlanningName = "Vendor Contracts and Agreements",
+                StartDate = new DateTime(2025, 01, 17),
+                EndDate = new DateTime(2025, 01, 24),
+                Duration = "6",
+                Progress = 50,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
+                Status = "Completed",
+                ParentId = 30,
+                MoneyAllocated = 12000,
+                MoneySpent = 12000,
+                Predecessor="36",
+                Priority = "Medium",
+                Description = "Negotiate and manage contracts with vendors, ensuring compliance with terms and conditions."
+            },
+            new EventPlanningData(){
+                Id = 38,
+                PlanningName = "Crowd Management Staff",
+                StartDate = new DateTime(2025, 01, 27),
+                EndDate = new DateTime(2025, 01, 31),
+                Duration = "5",
+                Progress = 100,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
+                Status = "Completed",
+                ParentId = 30,
+                Predecessor="37",
+                MoneyAllocated = 15000,
+                Priority = "Medium",
+                MoneySpent = 15000,
+                Description = "Recruit and train staff or volunteers to assist with crowd management, ticketing, and access control."
+            },
+
+// Preparation
+            new EventPlanningData() { Id = 39, PlanningName = "Preparation", Description="Prepare for the event by organizing networking opportunities and social events.",Priority = "High", StartDate = new DateTime(2024, 12, 17), EndDate = new DateTime(2025, 02, 05) },
+            new EventPlanningData(){
+                Id = 40,
+                PlanningName = "Networking Opportunities",
+                StartDate = new DateTime(2024, 12, 17),
+                EndDate = new DateTime(2024, 12, 26),
+                Duration = "7",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 8,   } },
+                Status = "Not Started",
+                ParentId = 39,
+                MoneyAllocated = 5000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Designate specific networking sessions and social events throughout the event."
+            },
+            new EventPlanningData(){
+                Id = 41,
+                PlanningName = "Accessibility Considerations",
+                StartDate = new DateTime(2024, 12, 27),
+                EndDate = new DateTime(2025, 01, 02),
+                Duration = "5",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 9,   } },
+                Status = "Not Started",
+                Predecessor="40",
+                ParentId = 39,
+                MoneyAllocated = 2000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Ensure the event venue and activities are accessible to individuals with disabilities."
+            },
+            new EventPlanningData(){
+                Id = 42,
+                PlanningName = "Sustainability Initiatives",
+                StartDate = new DateTime(2025, 01, 03),
+                EndDate = new DateTime(2025, 01, 13),
+                Duration = "7",
+                Progress = 38,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
+                Status = "In Progress",
+                ParentId = 39,
+                Predecessor="41",
+                MoneyAllocated = 10000,
+                MoneySpent = 3800,
+                Priority = "Medium",
+                Description = "Incorporate eco-friendly practices into the event planning and execution."
+            },
+            new EventPlanningData(){
+                Id = 43,
+                PlanningName = "Post-Event Analysis and Reporting",
+                StartDate = new DateTime(2025, 01, 14),
+                EndDate = new DateTime(2025, 01, 22),
+                Duration = "7",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 5,   } },
+                Status = "Not Started",
+                ParentId = 39,
+                Predecessor="42",
+                MoneyAllocated = 7000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Conduct a thorough analysis of attendee feedback and data to evaluate the event's success."
+            },
+            new EventPlanningData(){
+                Id = 44,
+                PlanningName = "Session Management",
+                StartDate = new DateTime(2025, 01, 23),
+                EndDate = new DateTime(2025, 01, 27),
+                Duration = "3",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
+                Status = "Not Started",
+                ParentId = 39,
+                Predecessor="43",
+                MoneyAllocated = 5000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Coordinate the scheduling and logistics of concurrent sessions during the event."
+            },
+            new EventPlanningData(){
+                Id = 45,
+                PlanningName = "Speaker Support",
+                StartDate = new DateTime(2025, 01, 28),
+                EndDate = new DateTime(2025, 01, 29),
+                Duration = "2",
+                Progress = 0,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 1,   } },
+                Status = "Not Started",
+                ParentId = 39,
+                Predecessor="44",
+                MoneyAllocated = 3000,
+                MoneySpent = 0,
+                Priority = "Medium",
+                Description = "Offer assistance and resources to speakers to ensure smooth delivery of their sessions."
+            },
+            new EventPlanningData(){
+                Id = 46,
+                PlanningName = "Audience Engagement",
+                StartDate = new DateTime(2025, 01, 30),
+                EndDate = new DateTime(2025, 02, 03),
+                Duration = "3",
+                Progress = 58,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
+                Status = "In Progress",
+                ParentId = 39,
+                Predecessor="45",
+                MoneyAllocated = 8000,
+                MoneySpent = 4640,
+                Priority = "Medium",
+                Description = "Planning to Implement interactive elements during sessions to encourage audience participation."
+            },
+            new EventPlanningData(){
+                Id = 47,
+                PlanningName = "Exhibition Management",
+                StartDate = new DateTime(2025, 02, 04),
+                EndDate = new DateTime(2025, 02, 05),
+                Duration = "2",
+                Progress = 100,
+                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
+                Status = "Completed",
+                ParentId = 39,
+                Predecessor="46",
+                MoneyAllocated = 10000,
+                MoneySpent = 10000,
+                Priority = "Medium",
+                Description = "Oversee the setup and operation of exhibition areas during the event."
+            },
+        };
+        return Plans;
+    }
+    
+}
