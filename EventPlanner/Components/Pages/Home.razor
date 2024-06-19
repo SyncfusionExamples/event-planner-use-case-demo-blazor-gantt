@@ -3,32 +3,32 @@
 <div>
     <div class="row-container">
         <div class="activity-filter">
-            <span style="color:white">Activity</span>
+            <span style="color:white;font-weight:600;">Activity</span>
             <SfTextBox @ref="NameRef" Width="100%" ValueChanged="@ValueChangedHandler" CssClass="e-activity-filter" Placeholder="Enter Activity"></SfTextBox>
         </div>
         <div class="importance-filter">
-            <span style="color:white">Importance</span>
+            <span style="color:white;font-weight:600;">Importance</span>
             <SfDropDownList Width="100%" @ref="ImportanceRef" TValue="string" Placeholder="Enter Importance" TItem="DropDownModel" CssClass="e-field" DataSource="@PriorityData">
                 <DropDownListFieldSettings Text="Value" Value="Value" />
                 <DropDownListEvents ValueChange="ImportanceValueChanged" TValue="string" TItem="DropDownModel"></DropDownListEvents>
             </SfDropDownList>
         </div>
         <div class="status-filter">
-            <span style="color:white">Progress</span>
+            <span style="color:white;font-weight:600;">Progress</span>
             <SfDropDownList ID="StatusDropDownBox" Width="100%" @ref="StatusRef" Placeholder="Enter Status" TValue="string" TItem="DropDownModel" CssClass="e-field" DataSource="@StatusData">
                 <DropDownListFieldSettings Text="Value" Value="Value" />
                 <DropDownListEvents ValueChange="StatusValueChanged" TValue="string" TItem="DropDownModel"></DropDownListEvents>
             </SfDropDownList>
         </div>
         <div class="dropdown">
-            <span style="color:white">Duration</span>
+            <span style="color:white;font-weight:600;">Duration</span>
             <SfDateRangePicker @ref="DatePickerRef" Width="100%" TValue="DateTime?" Placeholder="Enter a range" FullScreen="true" ShowClearButton="false">
                 <DateRangePickerEvents TValue="DateTime?" ValueChange="DateValueChangeHandler"></DateRangePickerEvents>
             </SfDateRangePicker>
         </div>
         <div class="action-buttons">
-            <button class="filter-button" onclick="@Filter">Filter</button>
-            <button class="clear-button" onclick="@Clear">Clear</button>
+            <button class="filter-button" style="font-weight:600;" onclick="@Filter">Filter</button>
+            <button class="clear-button" style="font-weight:600;" onclick="@Clear">Clear</button>
         </div>
         <div id="image-container" class="custom-dropdown">
             @foreach (var resource in Resources)
@@ -38,7 +38,7 @@
         </div>
     </div>
         <div class="use-case-gantt">
-            <SfGantt DataSource="@EventCollection" @ref="Gantt" Height="80vh" Width="100%" RowHeight="70" ProjectStartDate="@projectStart" ProjectEndDate="@projectEnd" GridLines="Syncfusion.Blazor.Gantt.GridLine.None" AllowRowDragAndDrop="true" AllowReordering AllowFiltering="true" AllowResizing="true" HighlightWeekends="true" EnablePredecessorValidation="true" ScrollToTaskbarOnClick="true" 
+            <SfGantt DataSource="@EventCollection" @ref="Gantt" Height="75vh" Width="100%" RowHeight="70" ProjectStartDate="@projectStart" EnableCriticalPath="true" GridLines="Syncfusion.Blazor.Gantt.GridLine.None" AllowRowDragAndDrop="true" AllowReordering AllowFiltering="true" AllowResizing="true" HighlightWeekends="true" EnablePredecessorValidation="true" ScrollToTaskbarOnClick="true" 
                     AllowSelection="true" TreeColumnIndex="1" Query="@SearchQuery">
             <GanttResource DataSource="ResourceCollection" Id="@nameof(ResourceInfoModel.ResourceId)" Name="@nameof(ResourceInfoModel.ResourceName)" MaxUnits="@nameof(ResourceInfoModel.MaxUnit)" TValue="EventPlanningData" TResources="ResourceInfoModel"></GanttResource>
             <GanttAssignmentFields DataSource="AssignmentCollection" PrimaryKey="@nameof(AssignmentModel.PrimaryId)" TaskID="@nameof(AssignmentModel.TaskId)" ResourceID="@nameof(AssignmentModel.ResourceId)" Units="@nameof(AssignmentModel.Unit)" TValue="EventPlanningData" TAssignment="AssignmentModel">
@@ -48,7 +48,7 @@
             <GanttEditSettings AllowAdding="true"  AllowDeleting="true" AllowTaskbarEditing="true" ShowDeleteConfirmDialog="true"></GanttEditSettings>
             <GanttColumns>
                 <GanttColumn Field="Id" Visible="false"></GanttColumn>
-                <GanttColumn Field="PlanningName" HeaderText="Activity" Width="300" ClipMode="Syncfusion.Blazor.Grids.ClipMode.EllipsisWithTooltip" AllowFiltering="true" IsFrozen="true"></GanttColumn>
+                <GanttColumn Field="PlanningName" HeaderText="Activity" Width="275" ClipMode="Syncfusion.Blazor.Grids.ClipMode.EllipsisWithTooltip" AllowFiltering="false" IsFrozen="true"></GanttColumn>
                 <GanttColumn Field="Priority" HeaderText="Importance" AllowFiltering="false">
                     <Template>
                         @{
@@ -91,9 +91,9 @@
                     }
                 }
             </GanttHolidays>
-            <GanttLabelSettings LeftLabel="PlanningName"  TValue="EventPlanningData">
-                <RightLabelTemplate>
-                        @{
+            <GanttLabelSettings TValue="EventPlanningData">
+                <LeftLabelTemplate>
+                     @{
                             var task = context as EventPlanningData;
                             if (task is null)
                             {
@@ -101,43 +101,46 @@
                             }
                             var taskModel = GetTaskModelData(task);
                             string resource = GetResourceName(task);
-                            <div class="e-right-label-inner-div" style="height:30px;margin-top:10px;margin-left:10px;margin-right:5px">
-                            <span class="e-label" style="font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
-                            </div>
                             if (resource != null)
                             {
                                 switch (resource)
                                 {
                                     case "Martin Tamer":
-                                        <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                            <img style="height:100%; width:100%;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Martin%20Tamer.png" />
-                                        </div>
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Martin%20Tamer.png" />
+                                    </div>
                                         break;
                                     case "Rose Fuller":
-                                        <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                            <img style="height:100%; width:100%;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Rose%20Fuller.png" />
-                                        </div>
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Rose%20Fuller.png" />
+                                    </div>
                                         break;
                                     case "Margaret Buchanan":
-                                        <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Margaret%20Buchanan.png" />
-                                        </div>
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Margaret%20Buchanan.png" />
+                                    </div>
                                         break;
                                     case "Fuller King":
-                                        <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20King.png" />
-                                        </div>
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20King.png" />
+                                    </div>
                                         break;
                                     case "Davolio Fuller":
-                                        <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Davolio%20Fuller.png" />
-                                        </div>
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Davolio%20Fuller.png" />
+                                    </div>
                                         break;
                                     
                                 }
                             }
-                        }
-                </RightLabelTemplate>
+                    }
+                </LeftLabelTemplate>
+                
             </GanttLabelSettings>
             <GanttTooltipSettings ShowTooltip="true" TValue="EventPlanningData">
                     <TaskbarTemplate>
@@ -149,8 +152,8 @@
                             }
                             var taskModel = GetTaskModelData(data);
                             string resourceName = GetResourceName(data);
-                            <div>
-                            <div class="text-center p-2">
+                            <div style ="display: flex; flex-direction: column; align-items: center;">
+                            <div class="text-center p-2" style="align-items:center;">
                                     <img style="height:28px; width:28px;filter: brightness(0) invert(1);" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
                             </div>
                                 <table class="table" style="color:#ffffff">
@@ -224,31 +227,42 @@
             <GanttSplitterSettings ColumnIndex="3"> </GanttSplitterSettings>
                 <GanttTemplates TValue="EventPlanningData">
                     <TaskbarTemplate>
-                        @{
-                            var task = context as EventPlanningData;
-                            var taskModel = GetTaskModelData(task);
-                            var progresswidth = taskModel.ProgressWidth;
-                            <div class="e-gantt-child-taskbar e-gantt-child-taskbar-inner-div" style="height:31px; background-color: rgba(201, 167, 244);outline-color: rgb(187 ,140 ,240) !important;outline: 1px solid;border-radius:4px;">
-                                <div class="e-gantt-child-progressbar-inner-div e-gantt-child-progressbar" style="height:37px;background-color: rgb(187 ,140 ,240);border-radius:0; width:@(progresswidth+"px"); position: relative;">
-                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin-left:10px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                    @{
+                        var task = context as EventPlanningData;
+                        var taskModel = GetTaskModelData(task);
+                        var progresswidth = taskModel.ProgressWidth;
+                        @if (taskModel.IsCritical)
+                        {
+                            <div class="e-gantt-child-taskbar e-gantt-child-taskbar-inner-div" style="height:43px; background-color: #06DFF9;outline-color: #06DFF9 !important;outline: 1px solid;border-radius:4px;">
+                                <div class="e-gantt-child-progressbar-inner-div e-gantt-child-progressbar" style="height:45px;background-color: #049cae;border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px; margin:7px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
                                 </div>
                             </div>
                         }
+                        else
+                        {
+                            <div class="e-gantt-child-taskbar e-gantt-child-taskbar-inner-div" style="height:43px; background-color: rgba(201, 167, 244);outline-color: rgb(187 ,140 ,240) !important;outline: 1px solid;border-radius:4px;">
+                                <div class="e-gantt-child-progressbar-inner-div e-gantt-child-progressbar" style="height:45px;background-color: rgb(187 ,140 ,240);border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin:7px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                                </div>
+                            </div>
+                        }
+                    }
                     </TaskbarTemplate>
                     <ParentTaskbarTemplate>
                         @{
                             var task = context as EventPlanningData;
                             var taskModel = GetTaskModelData(task);
                             var progresswidth = taskModel.ProgressWidth;
-                            <div class="e-gantt-parent-taskbar-inner-div e-gantt-parent-taskbar e-gantt-parent-taskbar-div" style="height:31px; background-color:#CED4DA ;outline-color:#ADB5BD !important;outline: 1px solid;border-radius:4px;">
-                                <div class="e-gantt e-gantt-chart e-gantt-parent-progressbar-inner-div" style="height:37px;background-color: #ADB5BD;border-radius:0; width:@(progresswidth+"px"); position: relative;">
-                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin-left:10px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                            <div class="e-gantt-parent-taskbar-inner-div e-gantt-parent-taskbar e-gantt-parent-taskbar-div" style="height:43px; background-color:#CED4DA ;outline-color:#ADB5BD !important;outline: 1px solid;border-radius:4px;">
+                                <div class="e-gantt e-gantt-chart e-gantt-parent-progressbar-inner-div" style="height:45px;background-color: #ADB5BD;border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin:7px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
                                 </div>
                             </div>
                         }
                     </ParentTaskbarTemplate>
             </GanttTemplates>
-            <GanttEvents RowDataBound="RowDataBound" QueryChartRowInfo="QueryChart" TaskbarEdited="TaskbarEdited" TValue="EventPlanningData" RowDropping="RowDropping"></GanttEvents>
+            <GanttEvents TaskbarEdited="TaskbarEdited" TValue="EventPlanningData" RowDropping="RowDropping"></GanttEvents>
         </SfGantt>
 </div>
 </div>
@@ -390,9 +404,6 @@
     }
     private void Clear()
     {
-        SearchQuery = new Query();
-        ColumnPredicate = new WhereFilter();
-        Predicate = new List<WhereFilter>();
         selectedResource = null;
         StatusRef.ClearAsync();
         ImportanceRef.ClearAsync();
@@ -402,6 +413,9 @@
         {
             resource.Selected = resource.Selected ? false : resource.Selected;
         }
+        SearchQuery = new Query();
+        ColumnPredicate = new WhereFilter();
+        Predicate = new List<WhereFilter>();
     }
     public class Holiday
     {
@@ -545,34 +559,13 @@
         }
         return $"background:{priorityStyle};color:{priorityContentStyle};padding: 5px 12px; border-radius: 24px;font-weight: 500;";
     }
-    
+
     private async void RowCreated(object args)
     {
         await Gantt.AutoFitColumnsAsync(new string[] { "PlanningName", "StartDate", "EndDate", "MoneyAllocated" });
 
     }
-    private void RowDataBound(RowDataBoundEventArgs<EventPlanningData> args)
-    {
-        if (!args.Data.ParentId.HasValue)
-        {
-            args.Row.AddClass(new string[] { "parent-custom-row" });
-        }
-        else
-        {
-            args.Row.AddClass(new string[] { "child-custom-row" });
-        }
-    }
-    private void QueryChart(QueryChartRowInfoEventArgs<EventPlanningData> args)
-    {
-        if (!args.Data.ParentId.HasValue)
-        {
-            args.Row.AddClass(new string[] { "parent-custom-row" });
-        }
-        else
-        {
-            args.Row.AddClass(new string[] { "child-custom-row" });
-        }
-    }
+
     private IGanttTaskModel<EventPlanningData> GetTaskModelData(EventPlanningData data)
     {
         return Gantt.GetRowTaskModel(data);
@@ -605,6 +598,10 @@
                     }
                 };
             }
+        }
+        if ((args.Data.StartDate - projectStart).Value.TotalDays < 5)
+        {
+            projectStart = projectStart.AddDays(-5);
         }
         Gantt.RefreshAsync();
     }
@@ -685,8 +682,8 @@
                  PlanningName = "Set Goals and Objectives", 
                  Description=" Define the purpose and goals of the event",
                  StartDate = new DateTime(2024, 10, 25), 
-                 EndDate = new DateTime(2024, 10, 30), 
-                 Duration = "4", 
+                 EndDate = new DateTime(2024, 11, 04), 
+                 Duration = "6", 
                  Progress = 100,
                  ParentId = 1,
                  ResourceId = 1,
@@ -699,8 +696,8 @@
                  PlanningName = "Budget Allocation",
                  Description="Determine the budget for the event",
                  StartDate = new DateTime(2024, 10, 25),
-                 EndDate = new DateTime(2024, 10, 29),
-                 Duration = "3",
+                 EndDate = new DateTime(2024, 11, 01),
+                 Duration = "5",
                  Progress = 100,
                  ParentId = 1,
                  ResourceId = 2,
@@ -712,8 +709,8 @@
                  Id = 4,
                  PlanningName = "Selecting Dates and Venue",
                  Description="Choose suitable dates and venue for the event",
-                 StartDate = new DateTime(2024, 11, 01),
-                 EndDate = new DateTime(2024, 11, 12),
+                 StartDate = new DateTime(2024, 11, 03),
+                 EndDate = new DateTime(2024, 11, 14),
                  Duration = "7",
                  Progress = 35,
                  ParentId = 1,
@@ -727,7 +724,7 @@
                 PlanningName = "Theme Development",
                 Description="Develop a compelling theme or focus for the event",
                 StartDate = new DateTime(2024, 11, 13),
-                EndDate = new DateTime(2024, 11, 15),
+                EndDate = new DateTime(2024, 11, 19),
                 Duration = "3",
                 Progress = 100,
                 ParentId = 1,
@@ -741,7 +738,7 @@
                 PlanningName = "Content Planning",
                 Description="Curate a diverse and engaging program agenda",
                 StartDate = new DateTime(2024, 11, 13),
-                EndDate = new DateTime(2024, 11, 18),
+                EndDate = new DateTime(2024, 11, 20),
                 Duration = "4",
                 Progress = 60,
                 ParentId = 1,
@@ -755,7 +752,7 @@
                 Id = 7,
                 PlanningName = "Speaker Acquisition",
                 StartDate = new DateTime(2024, 11, 18),
-                EndDate = new DateTime(2024, 11, 22),
+                EndDate = new DateTime(2024, 11, 26),
                 Duration = "5",
                 Progress = 0,
                 Status = "Not Started",
@@ -772,7 +769,7 @@
                 Id = 8,
                 PlanningName = "Sponsorship Acquisition",
                 StartDate = new DateTime(2024, 11, 25),
-                EndDate = new DateTime(2024, 12, 05),
+                EndDate = new DateTime(2024, 12, 09),
                 Duration = "8",
                 Progress = 0,
                 Status = "Not Started",
@@ -789,7 +786,7 @@
                 Id = 9,
                 PlanningName = "Website Development",
                 StartDate = new DateTime(2024, 12, 06),
-                EndDate = new DateTime(2024, 12, 09),
+                EndDate = new DateTime(2024, 12, 11),
                 Duration = "2",
                 Progress = 43,
                 Status = "In Progress",
@@ -805,7 +802,7 @@
                 Id = 10,
                 PlanningName = "Registration Setup",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 11),
+                EndDate = new DateTime(2024, 12, 13),
                 Duration = "2",
                 Progress = 0,
                 Status = "Not Started",
@@ -823,7 +820,7 @@
                 Id = 11,
                 PlanningName = "Volunteer Recruitment",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 21),
+                EndDate = new DateTime(2024, 11, 25),
                 Duration = "3",
                 Progress = 0,
                 Status = "Not Started",
@@ -839,7 +836,7 @@
                 Id = 12,
                 PlanningName = "Diversity and Inclusion Initiatives",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 22),
+                EndDate = new DateTime(2024, 11, 26),
                 Duration = "4",
                 Progress = 40,
                 Status = "In Progress",
@@ -855,7 +852,7 @@
                 Id = 13,
                 PlanningName = "Risk Management",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 25),
+                EndDate = new DateTime(2024, 11, 27),
                 Duration = "5",
                 Progress = 0,
                 Status = "Not Started",
@@ -871,7 +868,7 @@
                 Id = 14,
                 PlanningName = "Community Engagement",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 29),
+                EndDate = new DateTime(2024, 12, 03),
                 Duration = "8",
                 Progress = 48,
                 Status = "In Progress",
@@ -887,7 +884,7 @@
                 Id = 15,
                 PlanningName = "Speaker and Sponsor Management",
                 StartDate = new DateTime(2024, 11, 25),
-                EndDate = new DateTime(2024, 11, 26),
+                EndDate = new DateTime(2024, 11, 29),
                 Duration = "2",
                 Progress = 78,
                 Status = "In Progress",
@@ -903,7 +900,7 @@
                 Id = 16,
                 PlanningName = "Evaluation and Feedback Collection",
                 StartDate = new DateTime(2024, 11, 27),
-                EndDate = new DateTime(2024, 11, 29),
+                EndDate = new DateTime(2024, 12, 03),
                 Duration = "2",
                 Progress = 0,
                 Status = "Not Started",
@@ -919,7 +916,7 @@
                 Id = 17,
                 PlanningName = "Post-Event Follow-Up",
                 StartDate = new DateTime(2024, 12, 02),
-                EndDate = new DateTime(2024, 12, 09),
+                EndDate = new DateTime(2024, 12, 11),
                 Duration = "6",
                 Progress = 0,
                 Status = "Not Started",
@@ -936,7 +933,7 @@
                 Id = 18,
                 PlanningName = "Legacy Planning",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 13),
+                EndDate = new DateTime(2024, 12, 17),
                 Duration = "4",
                 Progress = 0,
                 Status = "Not Started",
@@ -952,7 +949,7 @@
                 Id = 19,
                 PlanningName = "Financial Reporting",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 13),
+                EndDate = new DateTime(2024, 12, 17),
                 Duration = "4",
                 Progress = 23,
                 Status = "In Progress",
@@ -968,7 +965,7 @@
                 Id = 20,
                 PlanningName = "Legal Compliance",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 12),
+                EndDate = new DateTime(2024, 12, 16),
                 Duration = "3",
                 Progress = 0,
                 Status = "Not Started",
@@ -984,7 +981,7 @@
                 Id = 21,
                 PlanningName = "Team Debriefing",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 13),
+                EndDate = new DateTime(2024, 12, 17),
                 Duration = "4",
                 Progress = 0,
                 Status = "Not Started",
@@ -1001,7 +998,7 @@
                 Id = 22,
                 PlanningName = "Crisis Communication Plan",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 16),
+                EndDate = new DateTime(2024, 12, 18),
                 Duration = "5",
                 Progress = 56,
                 Status = "In Progress",
@@ -1377,21 +1374,30 @@
     
 }
 <style>
-    .parent-custom-row, .parent-custom-row .e-leftfreeze {
-        background-color: #c8e6c9 !important;
+    
+    .e-rowcell{
+        font-weight: 600 !important;
+        color: #6a1b9a !important;
     }
-
-    .child-custom-row {
-        background-color: #e0ffe0 ;
-    }
-
-    .child-custom-row .e-leftfreeze{
-        background-color: #e0ffe0 !important;
     }
     .e-active, .e-leftfreeze.e-active {
         background-color: #d6e0f5 !important;
     }
+    .e-gridcontent tr:nth-child(even) td {
+        background-color: lavender !important;
+    }
 
+    .e-chart-root-container tr:nth-child(even) {
+        background-color: lavender !important;
+    }
+
+    .e-gridcontent tr:nth-child(odd) td {
+        background-color: aliceblue !important;
+    }
+
+    .e-chart-root-container tr:nth-child(odd) {
+        background-color: aliceblue !important;
+    }
     .e-label {
         z-index: 1;
     }
@@ -1412,6 +1418,7 @@
 
     .e-headercell, .e-rowdragheader {
         background: #26c6da !important;
+        color: #fff;
         border-right: 1px solid #fff !important;
     }
 
@@ -1419,6 +1426,9 @@
         background: #26c6da !important;
     }
 
+    .e-timeline-single-header-cell{
+        color: #fff !important;
+    }
     .e-connector-line {
         stroke: #512da8 !important;
     }
@@ -1429,16 +1439,6 @@
 
     .e-gantt .e-gantt-chart .e-timeline-top-header-cell {
         border-color: #fff !important;
-    }
-
-    .e-right-label-inner-div {
-        margin-left: 10px;
-    }
-
-    .e-left-label-inner-div .e-label {
-        font-size: 15px !important;
-        font-weight: 500 !important;
-        color: #6a1b9a !important;
     }
 
 
@@ -1464,7 +1464,7 @@
         display: flex;
         align-items: center;
         height: 70px;
-        background-color: #90caf9; 
+        background-color: #26c6da;
         padding: 10px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
@@ -1525,10 +1525,9 @@
         width: 35px;
         height: 35px;
         border-radius: 50%;
-        margin: 5px;
+        margin: 2px;
         vertical-align: middle;
         cursor: pointer;
-        margin: 0;
         padding: 0;
     }
 
@@ -1538,7 +1537,7 @@
         }
 
         .circular-image.e-selected {
-            border: 2.5px solid #3d5afe;
+            outline: 2.5px solid #3d5afe;
         }
 
     .e-field {
@@ -1604,4 +1603,5 @@
             margin-bottom: 10px;
         }
     }
+
 </style>
