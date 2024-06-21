@@ -1,128 +1,162 @@
 ﻿@page "/"
 
-
-
 <div>
-<div style="display:flex; flex-direction:column; align-items:center; margin-bottom:5px">
-    <h1>Event Planner</h1>
-    <h3>Syncfusion Tech Week</h3>
-</div>
-    <div>
-        <div class="e-switch-control">
-            <label class="showhide"> Activity </label>
-            <SfSwitch ValueChange="Resource" @bind-Checked="@Check" TChecked="bool"></SfSwitch>
-            <label class="showhide"> Managing Person </label>
+    <div class="row-container">
+        <div class="activity-filter">
+            <span style="color:white;font-weight:600;">Activity</span>
+            <SfTextBox @ref="NameRef" Width="100%" ValueChanged="@ValueChangedHandler" CssClass="e-activity-filter" Placeholder="Enter Activity"></SfTextBox>
         </div>
-
-        <SfGantt DataSource="@EventCollection" @ref="Gantt" Height="70vh" Width="100%" RowHeight="50" ProjectStartDate="@projectStart" ProjectEndDate="@projectEnd" GridLines="Syncfusion.Blazor.Gantt.GridLine.Vertical" AllowRowDragAndDrop="true" AllowReordering AllowFiltering="true" AllowResizing="true" HighlightWeekends="true" EnablePredecessorValidation="true" ScrollToTaskbarOnClick="true" ViewType="@viewType"
-                Toolbar="@(new List<string>(){ "Add",  "Delete",  "ExpandAll", "CollapseAll"})"
-                AllowSelection="true" TreeColumnIndex="1">
-        <GanttResourceFields Group="ResourceGroup" Resources="@ResourceCollection" Id="ResourceId" Name="ResourceName" Unit="Unit" TResources="ResourceAlloacteData"></GanttResourceFields>
-        <GanttTaskFields Id="Id" Name="PlanningName" StartDate="StartDate" EndDate="EndDate" Duration="Duration" Progress="Progress"
-                             Dependency="Predecessor" ParentID="ParentId" ResourceInfo="Resources"  Indicators="Indicators"></GanttTaskFields>
-        <GanttEditSettings AllowAdding="true" AllowDeleting="true" AllowTaskbarEditing="true" ShowDeleteConfirmDialog="true"></GanttEditSettings>
-        <GanttColumns>
-            <GanttColumn Field="Id" Visible="false"></GanttColumn>
-            <GanttColumn Field="PlanningName" HeaderText="@NameText" ClipMode="Syncfusion.Blazor.Grids.ClipMode.EllipsisWithTooltip" AllowFiltering="true" IsFrozen="true"></GanttColumn>
-            <GanttColumn Field="StartDate" HeaderText="Commencement Date" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="EndDate" HeaderText="Completion Date" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="Duration" HeaderText="Time Span" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="Progress" HeaderText="Completion" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="Status" HeaderText="Progress Status" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="Resources" HeaderText="Managing Person" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="Priority" HeaderText="Importance" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="MoneyAllocated" HeaderText="Estimated Expenses" Format="C" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="MoneySpent" HeaderText="Expenditure" Format="C" AllowFiltering="false"></GanttColumn>
-            <GanttColumn Field="Predecessor" HeaderText="Dependencies" AllowFiltering="false"></GanttColumn>
-        </GanttColumns>
-        <GanttHolidays>
-            @{
-                foreach(var holiday in HolidayCollection)
-                {
-                    <GanttHoliday From="holiday.Date" To="holiday.Date" Label="@holiday.HolidayName" CssClass="e-custom-holiday"></GanttHoliday>
-                }
+        <div class="importance-filter">
+            <span style="color:white;font-weight:600;">Importance</span>
+            <SfDropDownList Width="100%" @ref="ImportanceRef" TValue="string" Placeholder="Enter Importance" TItem="DropDownModel" CssClass="e-field" DataSource="@PriorityData">
+                <DropDownListFieldSettings Text="Value" Value="Value" />
+                <DropDownListEvents ValueChange="ImportanceValueChanged" TValue="string" TItem="DropDownModel"></DropDownListEvents>
+            </SfDropDownList>
+        </div>
+        <div class="status-filter">
+            <span style="color:white;font-weight:600;">Progress</span>
+            <SfDropDownList ID="StatusDropDownBox" Width="100%" @ref="StatusRef" Placeholder="Enter Status" TValue="string" TItem="DropDownModel" CssClass="e-field" DataSource="@StatusData">
+                <DropDownListFieldSettings Text="Value" Value="Value" />
+                <DropDownListEvents ValueChange="StatusValueChanged" TValue="string" TItem="DropDownModel"></DropDownListEvents>
+            </SfDropDownList>
+        </div>
+        <div class="dropdown">
+            <span style="color:white;font-weight:600;">Duration</span>
+            <SfDateRangePicker @ref="DatePickerRef" Width="100%" TValue="DateTime?" Placeholder="Enter a range" FullScreen="true" ShowClearButton="false">
+                <DateRangePickerEvents TValue="DateTime?" ValueChange="DateValueChangeHandler"></DateRangePickerEvents>
+            </SfDateRangePicker>
+        </div>
+        <div class="action-buttons">
+            <button class="filter-button" style="font-weight:600;" onclick="@Filter">Filter</button>
+            <button class="clear-button" style="font-weight:600;" onclick="@Clear">Clear</button>
+        </div>
+        <div id="image-container" class="custom-dropdown">
+            @foreach (var resource in Resources)
+            {
+                <img src="@resource.ImageUrl" style="background:white" alt="@resource.Name" title="@resource.Name" class="@($"circular-image {(resource.Selected ? "e-selected" : "")}")" @onclick="() => ToggleSelected(resource)" />
             }
-        </GanttHolidays>
-        <GanttLabelSettings LeftLabel="PlanningName" RightLabel="Resources" TValue="EventPlanningData">
-            <RightLabelTemplate>
-                    @{
-                        var datas = context as EventPlanningData;
-                        if (datas.Resources != null)
-                        {
-                            switch (datas.Resources[0]?.ResourceId)
+        </div>
+    </div>
+        <div class="use-case-gantt">
+            <SfGantt DataSource="@EventCollection" @ref="Gantt" Height="75vh" Width="100%" RowHeight="70" ProjectStartDate="@projectStart" EnableCriticalPath="true" GridLines="Syncfusion.Blazor.Gantt.GridLine.None" AllowRowDragAndDrop="true" AllowReordering AllowFiltering="true" AllowResizing="true" HighlightWeekends="true" EnablePredecessorValidation="true" ScrollToTaskbarOnClick="true" 
+                    AllowSelection="true" TreeColumnIndex="1" Query="@SearchQuery">
+            <GanttResource DataSource="ResourceCollection" Id="@nameof(ResourceInfoModel.ResourceId)" Name="@nameof(ResourceInfoModel.ResourceName)" MaxUnits="@nameof(ResourceInfoModel.MaxUnit)" TValue="EventPlanningData" TResources="ResourceInfoModel"></GanttResource>
+            <GanttAssignmentFields DataSource="AssignmentCollection" PrimaryKey="@nameof(AssignmentModel.PrimaryId)" TaskID="@nameof(AssignmentModel.TaskId)" ResourceID="@nameof(AssignmentModel.ResourceId)" Units="@nameof(AssignmentModel.Unit)" TValue="EventPlanningData" TAssignment="AssignmentModel">
+            </GanttAssignmentFields>
+            <GanttTaskFields Id="Id" Name="PlanningName" StartDate="StartDate" EndDate="EndDate" Duration="Duration" Progress="Progress"
+                                 Dependency="Predecessor" ParentID="ParentId" Indicators="Indicators"></GanttTaskFields>
+            <GanttEditSettings AllowAdding="true"  AllowDeleting="true" AllowTaskbarEditing="true" ShowDeleteConfirmDialog="true"></GanttEditSettings>
+            <GanttColumns>
+                <GanttColumn Field="Id" Visible="false"></GanttColumn>
+                <GanttColumn Field="PlanningName" HeaderText="Activity" Width="275" ClipMode="Syncfusion.Blazor.Grids.ClipMode.EllipsisWithTooltip" AllowFiltering="false" IsFrozen="true"></GanttColumn>
+                <GanttColumn Field="Priority" HeaderText="Importance" AllowFiltering="false">
+                    <Template>
+                        @{
+                            string priorityString = (context as EventPlanningData).Priority;
+                            if (!string.IsNullOrEmpty(priorityString))
                             {
-                                case 1:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Martin%20Tamer.png" />
-                                    </div>
-                                    break;
-                                case 2:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Rose%20Fuller.png" />
-                                    </div>
-                                    break;
-                                case 3:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Margaret%20Buchanan.png" />
-                                    </div>
-                                    break;
-                                case 4:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20King.png" />
-                                    </div>
-                                    break;
-                                case 5:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Davolio%20Fuller.png" />
-                                    </div>
-                                    break;
-                                case 6:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20Buchanan.png" />
-                                    </div>
-                                    break;
-                                case 7:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Jack%20Davolio.png" />
-                                </div>
-                                break;
-                                case 8:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/gantt/images/Van%20Jack.png" />
-                                    </div>
-                                    break;
-                                case 9:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style = "height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/kanban/images/Nancy%20Davloio.png" />
-                                    </div>
-                                    break;
-                                case 10:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/kanban/images/Janet%20Leverling.png" />
-                                    </div>
-                                    break;
-                                case 11:
-                                    <div class="e-right-label-inner-div" style="height:30px;margin-top:7px;margin-left:2px;">
-                                        <img style="height:100%; width:100%;" title="@datas.Resources[0].ResourceName" src="https://ej2.syncfusion.com/demos/src/kanban/images/Laura%20Callahan.png" />
-                                    </div>
-                                    break;
+                                string priorityStyle = this.GetPriorityContentStyle(priorityString);
+                                <div><span style="@priorityStyle">@priorityString</span></div>
                             }
                         }
-
-                    }
-            </RightLabelTemplate>
-        </GanttLabelSettings>
-        <GanttTooltipSettings ShowTooltip="true" TValue="EventPlanningData">
-                <TaskbarTemplate>
-                    @{
-                        var data = context as EventPlanningData;
-                        <div>
-                        <div class="text-center p-2">
-                                <img style="height:28px; width:28px;filter: brightness(0) invert(1);" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
-                        </div>
-                            <table class="table" style="color:#ffffff">
-                            @if(viewType == ViewType.ProjectView || data.ParentId != null)
+                    </Template>
+                </GanttColumn>
+                <GanttColumn Field="Status" HeaderText="Progress Status" AllowFiltering="false">
+                    <Template>
+                        @{
+                            string statusString = (context as EventPlanningData).Status;
+                            if (!string.IsNullOrEmpty(statusString))
                             {
+                                string statusStyle = GetStatusContentStyles(statusString);
+                                <div><span style="@statusStyle">@statusString</span></div>
+                            }
+                        }
+                    </Template>
+                </GanttColumn>
+               
+                <GanttColumn Field="StartDate" HeaderText="Commencement Date" AllowFiltering="false"></GanttColumn>
+                <GanttColumn Field="EndDate" HeaderText="Completion Date" AllowFiltering="false"></GanttColumn>
+                <GanttColumn Field="Duration" HeaderText="Time Span" AllowFiltering="false"></GanttColumn>
+                <GanttColumn Field="Progress" HeaderText="Completion" AllowFiltering="false"></GanttColumn>
+                <GanttResourceColumn  HeaderText="Managing Person" ></GanttResourceColumn>
+                <GanttColumn Field="MoneyAllocated" HeaderText="Estimated Expenses" Format="C" AllowFiltering="false"></GanttColumn>
+                <GanttColumn Field="MoneySpent" HeaderText="Expenditure" Format="C" AllowFiltering="false"></GanttColumn>
+                <GanttColumn Field="Predecessor" HeaderText="Dependencies" AllowFiltering="false"></GanttColumn>
+            </GanttColumns>
+            <GanttHolidays>
+                @{
+                    foreach(var holiday in HolidayCollection)
+                    {
+                        <GanttHoliday From="holiday.Date" To="holiday.Date" Label="@holiday.HolidayName" CssClass="e-custom-holiday"></GanttHoliday>
+                    }
+                }
+            </GanttHolidays>
+            <GanttLabelSettings TValue="EventPlanningData">
+                <LeftLabelTemplate>
+                     @{
+                            var task = context as EventPlanningData;
+                            if (task is null)
+                            {
+                                return;
+                            }
+                            var taskModel = GetTaskModelData(task);
+                            string resource = GetResourceName(task);
+                            if (resource != null)
+                            {
+                                switch (resource)
+                                {
+                                    case "Martin Tamer":
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Martin%20Tamer.png" />
+                                    </div>
+                                        break;
+                                    case "Rose Fuller":
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Rose%20Fuller.png" />
+                                    </div>
+                                        break;
+                                    case "Margaret Buchanan":
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Margaret%20Buchanan.png" />
+                                    </div>
+                                        break;
+                                    case "Fuller King":
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20King.png" />
+                                    </div>
+                                        break;
+                                    case "Davolio Fuller":
+                                    <div class="e-Left-label-inner-div" style="height:30px;margin-top:20px;margin-left:10px;margin-right:5px;align-items: center; display: inline-flex;justify-content: flex-end;width: 100%;">
+                                        <span class="e-label" style="margin:10px;font-size: 15px;font-weight: 500;color: #6a1b9a ;">@resource</span>
+                                        <img style="margin-right:10px;height:30px; width:30px;z-index:1;" title="@resource" src="https://ej2.syncfusion.com/demos/src/gantt/images/Davolio%20Fuller.png" />
+                                    </div>
+                                        break;
+                                    
+                                }
+                            }
+                    }
+                </LeftLabelTemplate>
+                
+            </GanttLabelSettings>
+            <GanttTooltipSettings ShowTooltip="true" TValue="EventPlanningData">
+                    <TaskbarTemplate>
+                        @{
+                            var data = context as EventPlanningData;
+                            if (data is null)
+                            {
+                                return;
+                            }
+                            var taskModel = GetTaskModelData(data);
+                            string resourceName = GetResourceName(data);
+                            <div style ="display: flex; flex-direction: column; align-items: center;">
+                            <div class="text-center p-2" style="align-items:center;">
+                                    <img style="height:28px; width:28px;filter: brightness(0) invert(1);" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                            </div>
+                                <table class="table" style="color:#ffffff">
                                 <tr>
                                     <td>
                                         Activity
@@ -131,166 +165,131 @@
                                         : @data.PlanningName
                                     </td>
                                 </tr>
-                                }
-                            else
-                            {
-                                <tr>
+                                 <tr>
                                     <td>
-                                            Managing Person
+                                        Commencement Date
                                     </td>
                                     <td>
-                                        : @data.PlanningName
+                                       : @(data.StartDate != null ? data.StartDate.Value.ToString("dd/MM/yyyy") : "")
                                     </td>
                                 </tr>
-                                    
-                                }
-                             <tr>
-                                <td>
-                                    Commencement Date
-                                </td>
-                                <td>
-                                   : @(data.StartDate != null ? data.StartDate.Value.ToString("dd/MM/yyyy") : "")
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                     Completion Date
-                                </td>
-                                <td>
-                                    : @(data.EndDate != null ? data.EndDate.Value.ToString("dd/MM/yyyy") : "")
-                                </td>
-                            </tr>
-                            @foreach (var resource in ResourceCollection)
-                            {
-                                if(resource != null && data.Resources != null){
-                                    if(data.Resources[0]?.ResourceId == resource.ResourceId){
-                                        <tr>
-                                            <td>
-                                            Managing Person
-                                            </td>
-                                            <td>
-                                            : @resource.ResourceName
-                                            </td>
-                                        </tr>
+                                <tr>
+                                    <td>
+                                         Completion Date
+                                    </td>
+                                    <td>
+                                        : @(data.EndDate != null ? data.EndDate.Value.ToString("dd/MM/yyyy") : "")
+                                    </td>
+                                </tr>
+                                @foreach (var resource in ResourceCollection)
+                                {
+                                    if(resource != null && resourceName != null){
+                                        if(resourceName == resource.ResourceName){
+                                            <tr>
+                                                <td>
+                                                Managing Person
+                                                </td>
+                                                <td>
+                                                : @resource.ResourceName
+                                                </td>
+                                            </tr>
+                                        }
                                     }
                                 }
-                            }
-                            <tr>
-                                <td>
-                                        Completion
-                                </td>
-                                <td>
-                                    : @data.Progress %
-                                </td>
-                            </tr>
-                        </table>
-                        </div>
-                    }
-                </TaskbarTemplate>
-                <IndicatorTemplate>
-                    @{
-                        var indicator = context as GanttIndicator;
-                        <table class="table">
-                            <tr>
-                                <td class="td-tooltip" style="width: 100%; color:#ffffff">
-                                    Description: @indicator.Tooltip
-                                </td>
-                            </tr>
-                        </table>
-                    }
-                </IndicatorTemplate>
-            </GanttTooltipSettings>
-        <GanttTimelineSettings>
-                <GanttTopTierSettings Unit="TimelineViewMode.Week" Format="MMM, yyyy"></GanttTopTierSettings>
-                <GanttBottomTierSettings Unit="TimelineViewMode.Day" Format="dd"></GanttBottomTierSettings>
+                                <tr>
+                                    <td>
+                                            Completion
+                                    </td>
+                                    <td>
+                                        : @data.Progress %
+                                    </td>
+                                </tr>
+                            </table>
+                            </div>
+                        }
+                    </TaskbarTemplate>
+                    <IndicatorTemplate>
+                        @{
+                            var indicator = context as GanttIndicator;
+                            <table class="table">
+                                <tr>
+                                    <td class="td-tooltip" style="width: 100%; color:#ffffff">
+                                        Description: @indicator.Tooltip
+                                    </td>
+                                </tr>
+                            </table>
+                        }
+                    </IndicatorTemplate>
+                </GanttTooltipSettings>
+            <GanttTimelineSettings TimelineUnitSize="99">
+                    <GanttTopTierSettings Unit="TimelineViewMode.Day" Format="d MMM yy" Count="2"></GanttTopTierSettings>
             </GanttTimelineSettings>
-        <GanttSplitterSettings ColumnIndex="5"> </GanttSplitterSettings>
-            <GanttTemplates TValue="EventPlanningData">
-                <TaskbarTemplate>
+            <GanttSplitterSettings ColumnIndex="3"> </GanttSplitterSettings>
+                <GanttTemplates TValue="EventPlanningData">
+                    <TaskbarTemplate>
                     @{
                         var task = context as EventPlanningData;
                         var taskModel = GetTaskModelData(task);
                         var progresswidth = taskModel.ProgressWidth;
-                        <div class="e-gantt-child-taskbar e-gantt-child-taskbar-inner-div" style="height:31px; background-color: rgba(201, 167, 244);outline-color: rgb(187 ,140 ,240) !important;outline: 1px solid;border-radius:4px;">
-                            <div class="e-gantt-child-progressbar-inner-div e-gantt-child-progressbar" style="height:37px;background-color: rgb(187 ,140 ,240);border-radius:0; width:@(progresswidth+"px"); position: relative;">
-                                <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin-left:10px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                        @if (taskModel.IsCritical)
+                        {
+                            <div class="e-gantt-child-taskbar e-gantt-child-taskbar-inner-div" style="height:43px; background-color: #06DFF9;outline-color: #06DFF9 !important;outline: 1px solid;border-radius:4px;">
+                                <div class="e-gantt-child-progressbar-inner-div e-gantt-child-progressbar" style="height:45px;background-color: #049cae;border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px; margin:7px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                                </div>
                             </div>
-                        </div>
-                    }
-                </TaskbarTemplate>
-                <ParentTaskbarTemplate>
-                    @{
-                        var task = context as EventPlanningData;
-                        var taskModel = GetTaskModelData(task);
-                        var progresswidth = taskModel.ProgressWidth;
-                        <div class="e-gantt-parent-taskbar-inner-div e-gantt-parent-taskbar e-gantt-parent-taskbar-div" style="height:31px; background-color:#CED4DA ;outline-color:#ADB5BD !important;outline: 1px solid;border-radius:4px;">
-                            <div class="e-gantt e-gantt-chart e-gantt-parent-progressbar-inner-div" style="height:37px;background-color: #ADB5BD;border-radius:0; width:@(progresswidth+"px"); position: relative;">
-                                <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin-left:10px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                        }
+                        else
+                        {
+                            <div class="e-gantt-child-taskbar e-gantt-child-taskbar-inner-div" style="height:43px; background-color: rgba(201, 167, 244);outline-color: rgb(187 ,140 ,240) !important;outline: 1px solid;border-radius:4px;">
+                                <div class="e-gantt-child-progressbar-inner-div e-gantt-child-progressbar" style="height:45px;background-color: rgb(187 ,140 ,240);border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin:7px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                                </div>
                             </div>
-                        </div>
+                        }
                     }
-                </ParentTaskbarTemplate>
+                    </TaskbarTemplate>
+                    <ParentTaskbarTemplate>
+                        @{
+                            var task = context as EventPlanningData;
+                            var taskModel = GetTaskModelData(task);
+                            var progresswidth = taskModel.ProgressWidth;
+                            <div class="e-gantt-parent-taskbar-inner-div e-gantt-parent-taskbar e-gantt-parent-taskbar-div" style="height:43px; background-color:#CED4DA ;outline-color:#ADB5BD !important;outline: 1px solid;border-radius:4px;">
+                                <div class="e-gantt e-gantt-chart e-gantt-parent-progressbar-inner-div" style="height:45px;background-color: #ADB5BD;border-radius:0; width:@(progresswidth+"px"); position: relative;">
+                                    <img style="height:28px; width:28px; position: absolute; left: 0; top: 1px;  margin:7px;" src="https://cdn-icons-png.flaticon.com/128/7955/7955805.png" />
+                                </div>
+                            </div>
+                        }
+                    </ParentTaskbarTemplate>
             </GanttTemplates>
-            <GanttEvents DataBound="DataBoundHandler" TaskbarEdited="TaskbarEdited" TValue="EventPlanningData" RowDropping="RowDropping"></GanttEvents>
-    </SfGantt>
-    </div>
-
-<style>
-
-    .e-gantt .e-gantt-chart .e-custom-holiday {
-        background-color: rgb(182, 214, 171);
-    }
-
-        .e-right-label-inner-div {
-            margin-left: 10px;
-        }
-        .showhide {
-            font-size: 15px;
-            font-weight: 400;
-            margin-bottom: 1px;
-            padding: 10px;
-        }
-
-        .e-switch-control {
-            display: flex;
-            align-items: center;
-        }
-
-        .e-tooltip-wrap.e-popup {
-            background-color: #212529;
-            border-color: #212529;
-           
-        }
-
-        .td-tooltip {
-            white-space: normal;
-            word-wrap: break-word;
-        }
-
-        i.e-btn-icon.e-border-box.e-icons.e-icon-left.e-gantt::before {
-            margin-left: 10px;
-        }
-
-        .e-label.e-indicator-span {
-            margin-top: 18px !important;
-        }
-
-</style>
+            <GanttEvents TaskbarEdited="TaskbarEdited" TValue="EventPlanningData" RowDropping="RowDropping"></GanttEvents>
+        </SfGantt>
+</div>
 </div>
 @code {
     public SfGantt<EventPlanningData> Gantt { get; set; }
     private List<EventPlanningData> EventCollection { get; set; }
-    private List<ResourceAlloacteData> ResourceCollection { get; set; }
-    private DateTime projectStart = new DateTime(2024, 10, 12);
+    private List<ResourceInfoModel> ResourceCollection { get; set; } = new();
+    private List<AssignmentModel> AssignmentCollection { get; set; } = new();
+    private DateTime projectStart = new DateTime(2024, 10, 20);
     private DateTime projectEnd = new DateTime(2025, 02, 14);
-    private ViewType viewType { get; set; } = ViewType.ProjectView;
     private bool OnLoad = false;
-    private Boolean Check = false;
-    private string NameText = "Activity";
+    public string statusStyleColor;
+    public string statusContentstyleColor;
+    public string priorityContentStyle;
+    public string priorityStyle;
+    public Query SearchQuery { get; set; } = new Query();
+    WhereFilter ColumnPredicate = new WhereFilter();
+    List<WhereFilter> Predicate = new List<WhereFilter>();
+    SfDropDownList<string, DropDownModel> StatusRef;
+    SfDropDownList<string, DropDownModel> ImportanceRef;
+    SfDateRangePicker<DateTime?> DatePickerRef;
+    SfTextBox NameRef;
     protected override void OnInitialized()
     {
         this.EventCollection = EventPlanning().ToList();
         this.ResourceCollection = GetResources;
+        this.AssignmentCollection = GetAssignmentCollection();
         foreach (EventPlanningData data in EventCollection)
         {
             if (!string.IsNullOrEmpty(data.EndDate.Value.ToString()))
@@ -301,13 +300,122 @@
                 {
                     new GanttIndicator
                     {
-                        IconClass = "e-btn-icon e-border-box e-icons e-icon-left e-gantt e-border-box::before",
+                        IconClass = "e-btn-icon e-description e-icons e-icon-left e-gantt e-description::before",
                         Date = indicatorDate.Value,
                         Tooltip = data.Description
                     }
                 };
             }
         }
+    }
+    private class DropDownModel
+    {
+        public int Id { get; set; }
+        public string Value { get; set; }
+    }
+    private List<DropDownModel> StatusData = new List<DropDownModel>() {
+        new DropDownModel { Id = 0, Value = "Not Started" },
+        new DropDownModel { Id = 1, Value = "In Progress" },
+        new DropDownModel { Id = 2, Value = "Completed" },
+    };
+    private List<DropDownModel> PriorityData = new List<DropDownModel>() {
+        new DropDownModel { Id = 0, Value = "Medium" },
+        new DropDownModel { Id = 1, Value = "High" },
+        new DropDownModel { Id = 2, Value = "Critical" }
+    };
+    private void StatusValueChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, DropDownModel> args)
+    {
+        if (ColumnPredicate.predicates != null)
+        {
+            ColumnPredicate.predicates.Remove(Predicate.FirstOrDefault(p => p is WhereFilter && ((WhereFilter)p).Field == "Status"));
+        }
+        Predicate.Add(new WhereFilter()
+            {
+                Field = "Status",
+                value = args.Value,
+                Operator = "equal",
+                IgnoreCase = true
+            });
+        ColumnPredicate = WhereFilter.And(Predicate);
+    }
+    private void ImportanceValueChanged(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, DropDownModel> args)
+    {
+        if (ColumnPredicate.predicates != null)
+        {
+            ColumnPredicate.predicates.Remove(Predicate.FirstOrDefault(p => p is WhereFilter && ((WhereFilter)p).Field == "Priority"));
+        }
+        Predicate.Add(new WhereFilter()
+            {
+                Field = "Priority",
+                value = args.Value,
+                Operator = "equal",
+                IgnoreCase = true
+            });
+        ColumnPredicate = WhereFilter.And(Predicate);
+    }
+    private void ValueChangedHandler(String args)
+    {
+        if(ColumnPredicate.predicates != null)
+        {
+            ColumnPredicate.predicates.Remove(Predicate.FirstOrDefault(p => p is WhereFilter && ((WhereFilter)p).Field == "PlanningName"));
+        }
+        if (!string.IsNullOrEmpty(args))
+        {
+            Predicate.Add(new WhereFilter()
+                {
+                    Field = "PlanningName",
+                    value = args,
+                    Operator = "startswith",
+                    IgnoreCase = true
+                });
+            ColumnPredicate = WhereFilter.And(Predicate);
+        }
+    }
+    private void DateValueChangeHandler(RangePickerEventArgs<DateTime?> args)
+    {
+        if (ColumnPredicate.predicates != null)
+        {
+            ColumnPredicate.predicates.Remove(Predicate.FirstOrDefault(p => p is WhereFilter && ((WhereFilter)p).Field == "StartDate" ));
+            ColumnPredicate.predicates.Remove(Predicate.FirstOrDefault(p => p is WhereFilter && ((WhereFilter)p).Field == "EndDate" ));
+        }
+        if (args.StartDate != null || args.EndDate != null)
+        {
+            Predicate.Add(new WhereFilter()
+                {
+                    Field = "StartDate",
+                    value = args.StartDate,
+                    Operator = "greaterthanorequal",
+                    IgnoreCase = true
+                });
+            ColumnPredicate = WhereFilter.And(Predicate);
+            Predicate.Add(new WhereFilter()
+                {
+                    Field = "EndDate",
+                    value = args.EndDate,
+                    Operator = "lessthanorequal",
+                    IgnoreCase = true
+                });
+            ColumnPredicate = WhereFilter.And(Predicate);
+        }
+    }
+    private void Filter()
+    {
+        SearchQuery = new Query().Where(ColumnPredicate);
+    }
+    private void Clear()
+    {
+        selectedResource = null;
+        StatusRef.ClearAsync();
+        ImportanceRef.ClearAsync();
+        DatePickerRef.StartDate = DatePickerRef.EndDate = null;
+        NameRef.Value = null;
+        foreach(var resource in Resources)
+        {
+            resource.Selected = resource.Selected ? false : resource.Selected;
+        }
+        SearchQuery = new Query();
+        ColumnPredicate = new WhereFilter();
+        Predicate = new List<WhereFilter>();
     }
     public class Holiday
     {
@@ -331,7 +439,6 @@
         public DateTime? EndDate { get; set; }
         public string Duration { get; set; } = string.Empty;
         public int Progress { get; set; }
-        public List<ResourceAlloacteData> Resources { get; set; }
         public string Status { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Predecessor { get; set; } = string.Empty;
@@ -339,37 +446,139 @@
         public double MoneySpent { get; set; }
         public double MoneyAllocated { get; set; }
         public int? ParentId { get; set; }
+        public int ResourceId { get; set; }
         public List<GanttIndicator>? Indicators { get; set; }
     }
-    public class ResourceAlloacteData
+    public class ResourceInfoModel
     {
         public int ResourceId { get; set; }
-        public string ResourceName { get; set; } = string.Empty;
-        public double Unit { get; set; }
-        public string? ResourceGroup { get; set; }
+        public string? ResourceName { get; set; }
+        public double MaxUnit { get; set; }
     }
-    public static List<ResourceAlloacteData> GetResources = new List<ResourceAlloacteData>()
+    public class AssignmentModel
     {
-        new ResourceAlloacteData() { ResourceId= 1, ResourceName= "Martin Tamer"},
-        new ResourceAlloacteData() { ResourceId= 2, ResourceName= "Rose Fuller" },
-        new ResourceAlloacteData() { ResourceId= 3, ResourceName= "Margaret Buchanan"},
-        new ResourceAlloacteData() { ResourceId= 4, ResourceName= "Fuller King" },
-        new ResourceAlloacteData() { ResourceId= 5, ResourceName= "Davolio Fuller" },
-        new ResourceAlloacteData() { ResourceId= 6, ResourceName= "Fuller Buchanan" },
-        new ResourceAlloacteData() { ResourceId= 7, ResourceName= "Jack Davolio"},
-        new ResourceAlloacteData() { ResourceId= 8, ResourceName= "Tamer Vinet" },
-        new ResourceAlloacteData() { ResourceId= 9, ResourceName= "Nancy Davloio"},
-        new ResourceAlloacteData() { ResourceId= 10, ResourceName= "Janet Leverling" },
-        new ResourceAlloacteData() { ResourceId= 11, ResourceName= "Laura Callahan"},
+        public int PrimaryId { get; set; }
+        public int TaskId { get; set; }
+        public int ResourceId { get; set; }
+        public double Unit { get; set; }
+    }
+    public static List<ResourceInfoModel> GetResources = new List<ResourceInfoModel>()
+    {
+        new ResourceInfoModel() { ResourceId= 1, ResourceName= "Martin Tamer"},
+        new ResourceInfoModel() { ResourceId= 2, ResourceName= "Rose Fuller" },
+        new ResourceInfoModel() { ResourceId= 3, ResourceName= "Margaret Buchanan"},
+        new ResourceInfoModel() { ResourceId= 4, ResourceName= "Fuller King" },
+        new ResourceInfoModel() { ResourceId= 5, ResourceName= "Davolio Fuller" }
     };
-    private async void DataBoundHandler(object args)
+    public static List<AssignmentModel> GetAssignmentCollection()
+    {
+        List<AssignmentModel> assignments = new List<AssignmentModel>()
+        {
+            new AssignmentModel(){ PrimaryId=1, TaskId = 2 , ResourceId=1,},
+            new AssignmentModel(){ PrimaryId=2, TaskId = 3 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=3, TaskId = 4 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=4, TaskId = 5 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=5, TaskId = 6 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=6, TaskId = 7 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=7, TaskId = 8 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=8, TaskId = 9 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=9, TaskId = 10 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=10, TaskId = 11 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=11, TaskId = 12 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=12, TaskId = 13 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=13, TaskId = 14 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=14, TaskId = 15 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=15, TaskId = 16 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=16, TaskId = 17 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=17, TaskId = 18 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=18, TaskId = 19 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=19, TaskId = 20 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=20, TaskId = 21 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=21, TaskId = 22 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=22, TaskId = 24 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=23, TaskId = 25 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=24, TaskId = 26 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=25, TaskId = 27 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=26, TaskId = 28 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=27, TaskId = 29 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=28, TaskId = 31 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=29, TaskId = 32 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=30, TaskId = 33 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=31, TaskId = 34 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=32, TaskId = 35 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=33, TaskId = 36 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=34, TaskId = 37 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=35, TaskId = 38 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=36, TaskId = 40 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=37, TaskId = 41 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=38, TaskId = 42 , ResourceId=3},
+            new AssignmentModel(){ PrimaryId=39, TaskId = 43 , ResourceId=4},
+            new AssignmentModel(){ PrimaryId=40, TaskId = 44 , ResourceId=5},
+            new AssignmentModel(){ PrimaryId=41, TaskId = 45 , ResourceId=1},
+            new AssignmentModel(){ PrimaryId=42, TaskId = 46 , ResourceId=2},
+            new AssignmentModel(){ PrimaryId=43, TaskId = 47 , ResourceId=3}
+        };
+        return assignments;
+    }
+    private string GetStatusContentStyles(string status)
+    {
+        switch (status)
+        {
+            case "In Progress":
+                statusStyleColor = "#004d4d"; 
+                statusContentstyleColor = "#FFFFFF";
+                break;
+            case "Not Started":
+                statusStyleColor = "#002080";
+                statusContentstyleColor = "#FFFFFF";
+                break;
+            case "Completed":
+                statusStyleColor = "#006600";
+                statusContentstyleColor = "#FFFFFF";
+                break;
+        }
+        return $"background:{statusStyleColor};color:{statusContentstyleColor};padding: 5px 12px; border-radius: 24px;font-weight: 500;";
+    }
+
+    private string GetPriorityContentStyle(string status)
+    {
+        switch (status)
+        {
+            case "Medium":
+                priorityStyle = "#4B0082";
+                priorityContentStyle = "#FFFFFF";
+                break;
+            case "Critical":
+                priorityStyle = "#8B0000";
+                priorityContentStyle = "#FFFFFF";
+                break;
+            case "High":
+                priorityStyle = "#996515";
+                priorityContentStyle = "#FFFFFF";
+                break;
+        }
+        return $"background:{priorityStyle};color:{priorityContentStyle};padding: 5px 12px; border-radius: 24px;font-weight: 500;";
+    }
+
+    private async void RowCreated(object args)
     {
         await Gantt.AutoFitColumnsAsync(new string[] { "PlanningName", "StartDate", "EndDate", "MoneyAllocated" });
 
     }
+
     private IGanttTaskModel<EventPlanningData> GetTaskModelData(EventPlanningData data)
     {
         return Gantt.GetRowTaskModel(data);
+    }
+    private string GetResourceName(EventPlanningData record)
+    {
+        var assignment = Gantt.GetResourceAssignments<AssignmentModel>(record);
+        if (assignment is not null && assignment.Any())
+        {
+            var resourceId = (assignment[0] as AssignmentModel).ResourceId - 1;
+            return (GetResources[(int)resourceId]).ResourceName;
+        }
+        return string.Empty;
     }
     public void TaskbarEdited(TaskbarEditedEventArgs<EventPlanningData> args)
     {
@@ -383,12 +592,16 @@
                 {
                     new GanttIndicator
                     {
-                        IconClass = "e-btn-icon e-border-box e-icons e-icon-left e-gantt e-border-box::before",
+                        IconClass = "e-btn-icon e-description e-icons e-icon-left e-gantt e-description::before",
                         Date = indicatorDate,
                         Tooltip = data.Description
                     }
                 };
             }
+        }
+        if ((args.Data.StartDate - projectStart).Value.TotalDays < 5)
+        {
+            projectStart = projectStart.AddDays(-5);
         }
         Gantt.RefreshAsync();
     }
@@ -400,19 +613,64 @@
             args.Cancel = true;
         }
     }  
-    public void Resource()
+    public class Resource
     {
-        if (viewType == ViewType.ResourceView)
+        public string Name { get; set; }
+        public string ImageUrl { get; set; }
+        public bool Selected { get; set; }
+    }
+    private Resource? selectedResource { get; set; } = null;
+    private List<Resource> Resources = new List<Resource>
+    {
+        new Resource { Name = "Martin Tamer", ImageUrl = "https://ej2.syncfusion.com/demos/src/gantt/images/Martin%20Tamer.png", Selected = false },
+        new Resource { Name = "Rose Fuller", ImageUrl = "https://ej2.syncfusion.com/demos/src/gantt/images/Rose%20Fuller.png", Selected = false },
+        new Resource { Name = "Margaret Buchanan", ImageUrl = "https://ej2.syncfusion.com/demos/src/gantt/images/Margaret%20Buchanan.png", Selected = false },
+        new Resource { Name = "Fuller King", ImageUrl = "https://ej2.syncfusion.com/demos/src/gantt/images/Fuller%20King.png", Selected = false },
+        new Resource { Name = "Davolio Fuller", ImageUrl = "https://ej2.syncfusion.com/demos/src/gantt/images/Davolio%20Fuller.png", Selected = false }
+    };
+
+    public void ToggleSelected(Resource clickedResource)
+    {
+        foreach (var resource in Resources)
         {
-            viewType = ViewType.ProjectView;
-            NameText = "Activity";
+            if (resource == clickedResource)
+            {
+                resource.Selected = !resource.Selected;
+            }
+            else
+            {
+                resource.Selected = false;
+            }
         }
-        else
+        selectedResource = clickedResource.Selected ? clickedResource : null;
+        if (ColumnPredicate.predicates != null)
         {
-            viewType = ViewType.ResourceView;
-            NameText = "Managing Person";
+            ColumnPredicate.predicates.Remove(Predicate.FirstOrDefault(p => p is WhereFilter && ((WhereFilter)p).Field == "ResourceId"));
         }
-        StateHasChanged();
+        if (selectedResource != null)
+        {
+            int resourceId = 0;
+            foreach(var resource in ResourceCollection)
+            {
+                if(resource.ResourceName == selectedResource.Name)
+                {
+                    resourceId = resource.ResourceId;
+                    break;
+                }
+            }
+            Predicate.Add(new WhereFilter()
+                {
+                    Field = "ResourceId",
+                    value = resourceId,
+                    Operator = "equal",
+                    IgnoreCase = false,
+                });
+                ColumnPredicate = WhereFilter.And(Predicate);
+        }
+        if (ColumnPredicate.predicates != null)
+        {
+            SearchQuery = new Query().Where(ColumnPredicate);
+        }
     }
     public static List<EventPlanningData> EventPlanning()
     {
@@ -424,11 +682,11 @@
                  PlanningName = "Set Goals and Objectives", 
                  Description=" Define the purpose and goals of the event",
                  StartDate = new DateTime(2024, 10, 25), 
-                 EndDate = new DateTime(2024, 10, 30), 
-                 Duration = "4", 
+                 EndDate = new DateTime(2024, 11, 04), 
+                 Duration = "6", 
                  Progress = 100,
-                 Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=1} },
                  ParentId = 1,
+                 ResourceId = 1,
                  Status="Completed",
                  Priority = "Critical",
              },
@@ -438,11 +696,11 @@
                  PlanningName = "Budget Allocation",
                  Description="Determine the budget for the event",
                  StartDate = new DateTime(2024, 10, 25),
-                 EndDate = new DateTime(2024, 10, 29),
-                 Duration = "3",
+                 EndDate = new DateTime(2024, 11, 01),
+                 Duration = "5",
                  Progress = 100,
-                 Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=2} },
                  ParentId = 1,
+                 ResourceId = 2,
                  Status = "Completed",
                  Priority = "High",
              },
@@ -451,12 +709,12 @@
                  Id = 4,
                  PlanningName = "Selecting Dates and Venue",
                  Description="Choose suitable dates and venue for the event",
-                 StartDate = new DateTime(2024, 11, 01),
-                 EndDate = new DateTime(2024, 11, 12),
+                 StartDate = new DateTime(2024, 11, 03),
+                 EndDate = new DateTime(2024, 11, 14),
                  Duration = "7",
                  Progress = 35,
-                 Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=3} },
                  ParentId = 1,
+                 ResourceId = 3,
                  Status="In Progress",
                  Priority = "High",
                  Predecessor = "2FS,3FS"
@@ -466,11 +724,11 @@
                 PlanningName = "Theme Development",
                 Description="Develop a compelling theme or focus for the event",
                 StartDate = new DateTime(2024, 11, 13),
-                EndDate = new DateTime(2024, 11, 15),
+                EndDate = new DateTime(2024, 11, 19),
                 Duration = "3",
                 Progress = 100,
-                Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=4 } },
                 ParentId = 1,
+                ResourceId = 4,
                 Status="Completed",
                 Priority = "High",
                 Predecessor="4"
@@ -480,11 +738,11 @@
                 PlanningName = "Content Planning",
                 Description="Curate a diverse and engaging program agenda",
                 StartDate = new DateTime(2024, 11, 13),
-                EndDate = new DateTime(2024, 11, 18),
+                EndDate = new DateTime(2024, 11, 20),
                 Duration = "4",
                 Progress = 60,
-                Resources = new List<ResourceAlloacteData>(){ new ResourceAlloacteData() { ResourceId=5} },
                 ParentId = 1,
+                ResourceId = 5,
                 Status="In Progress",
                 Priority = "Medium",
                 Predecessor="4"
@@ -494,12 +752,12 @@
                 Id = 7,
                 PlanningName = "Speaker Acquisition",
                 StartDate = new DateTime(2024, 11, 18),
-                EndDate = new DateTime(2024, 11, 22),
+                EndDate = new DateTime(2024, 11, 26),
                 Duration = "5",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 1,
                 Description = "Identify and secure influential speakers and thought leaders in the tech industry.",
                 Predecessor="5",
                 MoneyAllocated = 9000,
@@ -511,12 +769,12 @@
                 Id = 8,
                 PlanningName = "Sponsorship Acquisition",
                 StartDate = new DateTime(2024, 11, 25),
-                EndDate = new DateTime(2024, 12, 05),
+                EndDate = new DateTime(2024, 12, 09),
                 Duration = "8",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 2,
                 Predecessor="7",
                 MoneyAllocated = 15000,
                 MoneySpent = 0,
@@ -528,12 +786,12 @@
                 Id = 9,
                 PlanningName = "Website Development",
                 StartDate = new DateTime(2024, 12, 06),
-                EndDate = new DateTime(2024, 12, 09),
+                EndDate = new DateTime(2024, 12, 11),
                 Duration = "2",
                 Progress = 43,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
                 Status = "In Progress",
                 ParentId = 1,
+                ResourceId = 3,
                 Predecessor="8",
                 MoneyAllocated = 8000,
                 MoneySpent = 6500,
@@ -544,12 +802,12 @@
                 Id = 10,
                 PlanningName = "Registration Setup",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 11),
+                EndDate = new DateTime(2024, 12, 13),
                 Duration = "2",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 8,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 4,
                 Predecessor="9",
                 MoneyAllocated = 5000,
                 MoneySpent = 0,
@@ -562,12 +820,12 @@
                 Id = 11,
                 PlanningName = "Volunteer Recruitment",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 21),
+                EndDate = new DateTime(2024, 11, 25),
                 Duration = "3",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 5,
                 Predecessor="6",
                 MoneyAllocated = 3500,
                 MoneySpent = 0,
@@ -578,13 +836,13 @@
                 Id = 12,
                 PlanningName = "Diversity and Inclusion Initiatives",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 22),
+                EndDate = new DateTime(2024, 11, 26),
                 Duration = "4",
                 Progress = 40,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 9,   } },
                 Status = "In Progress",
                 Predecessor="6",
                 ParentId = 1,
+                ResourceId = 1,
                 MoneyAllocated = 6000,
                 MoneySpent = 4500,
                 Priority = "High",
@@ -594,12 +852,12 @@
                 Id = 13,
                 PlanningName = "Risk Management",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 25),
+                EndDate = new DateTime(2024, 11, 27),
                 Duration = "5",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 4,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 2,
                 Predecessor="6",
                 MoneyAllocated = 4000,
                 MoneySpent = 0,
@@ -610,12 +868,12 @@
                 Id = 14,
                 PlanningName = "Community Engagement",
                 StartDate = new DateTime(2024, 11, 19),
-                EndDate = new DateTime(2024, 11, 29),
+                EndDate = new DateTime(2024, 12, 03),
                 Duration = "8",
                 Progress = 48,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 10,   } },
                 Status = "In Progress",
                 ParentId = 1,
+                ResourceId = 3,
                 Predecessor="6",
                 MoneyAllocated = 6000,
                 MoneySpent = 5500,
@@ -626,12 +884,12 @@
                 Id = 15,
                 PlanningName = "Speaker and Sponsor Management",
                 StartDate = new DateTime(2024, 11, 25),
-                EndDate = new DateTime(2024, 11, 26),
+                EndDate = new DateTime(2024, 11, 29),
                 Duration = "2",
                 Progress = 78,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 5,   } },
                 Status = "In Progress",
                 ParentId = 1,
+                ResourceId = 4,
                 Predecessor="6,7",
                 MoneyAllocated = 8000,
                 MoneySpent = 6550,
@@ -642,13 +900,13 @@
                 Id = 16,
                 PlanningName = "Evaluation and Feedback Collection",
                 StartDate = new DateTime(2024, 11, 27),
-                EndDate = new DateTime(2024, 11, 29),
+                EndDate = new DateTime(2024, 12, 03),
                 Duration = "2",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 11,   } },
                 Status = "Not Started",
                 Predecessor="15",
                 ParentId = 1,
+                ResourceId = 5,
                 MoneyAllocated = 3000,
                 MoneySpent = 0,
                 Priority = "Medium",
@@ -658,12 +916,12 @@
                 Id = 17,
                 PlanningName = "Post-Event Follow-Up",
                 StartDate = new DateTime(2024, 12, 02),
-                EndDate = new DateTime(2024, 12, 09),
+                EndDate = new DateTime(2024, 12, 11),
                 Duration = "6",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 1,
                 Predecessor="16",
                 MoneyAllocated = 5000,
                 MoneySpent = 0,
@@ -675,12 +933,12 @@
                 Id = 18,
                 PlanningName = "Legacy Planning",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 13),
+                EndDate = new DateTime(2024, 12, 17),
                 Duration = "4",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 1,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 2,
                 Predecessor="17",
                 MoneyAllocated = 4500,
                 MoneySpent = 0,
@@ -691,12 +949,12 @@
                 Id = 19,
                 PlanningName = "Financial Reporting",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 13),
+                EndDate = new DateTime(2024, 12, 17),
                 Duration = "4",
                 Progress = 23,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
                 Status = "In Progress",
                 ParentId = 1,
+                ResourceId = 3,
                 Predecessor="17",
                 MoneyAllocated = 6000,
                 MoneySpent = 5500,
@@ -707,12 +965,12 @@
                 Id = 20,
                 PlanningName = "Legal Compliance",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 12),
+                EndDate = new DateTime(2024, 12, 16),
                 Duration = "3",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 4,
                 Predecessor="17",
                 MoneyAllocated = 5000,
                 MoneySpent = 0,
@@ -723,12 +981,12 @@
                 Id = 21,
                 PlanningName = "Team Debriefing",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 13),
+                EndDate = new DateTime(2024, 12, 17),
                 Duration = "4",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
                 Status = "Not Started",
                 ParentId = 1,
+                ResourceId = 5,
                 Predecessor="17",
                 MoneyAllocated = 3000,
                 MoneySpent = 0,
@@ -740,12 +998,12 @@
                 Id = 22,
                 PlanningName = "Crisis Communication Plan",
                 StartDate = new DateTime(2024, 12, 10),
-                EndDate = new DateTime(2024, 12, 16),
+                EndDate = new DateTime(2024, 12, 18),
                 Duration = "5",
                 Progress = 56,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 11,   } },
                 Status = "In Progress",
                 ParentId = 1,
+                ResourceId = 1,
                 Predecessor="17",
                 MoneyAllocated = 0,
                 MoneySpent = 0,
@@ -762,9 +1020,9 @@
                 EndDate = new DateTime(2024, 12, 19),
                 Duration = "3",
                 Progress = 100,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 4,   } },
                 Status = "Completed",
                 ParentId = 23,
+                ResourceId = 2,
                 MoneyAllocated = 10000,
                 MoneySpent = 10000,
                 Priority = "High",
@@ -777,9 +1035,9 @@
                 EndDate = new DateTime(2024, 12, 26),
                 Duration = "4",
                 Progress = 100,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
                 Status = "Completed",
                 ParentId = 23,
+                ResourceId = 3,
                 Predecessor="24",
                 MoneyAllocated = 5000,
                 MoneySpent = 5000,
@@ -793,9 +1051,9 @@
                 EndDate = new DateTime(2025, 01, 03),
                 Duration = "6",
                 Progress = 50,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
                 Status = "In Progress",
                 ParentId = 23,
+                ResourceId = 4,
                 Predecessor="25",
                 MoneyAllocated = 15000,
                 MoneySpent = 7500,
@@ -809,9 +1067,9 @@
                 EndDate = new DateTime(2025, 01, 07),
                 Duration = "2",
                 Progress = 52,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 9,   } },
                 Status = "In Progress",
                 ParentId = 23,
+                ResourceId = 5,
                 Predecessor="26",
                 MoneyAllocated = 8000,
                 MoneySpent = 4160,
@@ -825,9 +1083,9 @@
                 EndDate = new DateTime(2025, 01, 14),
                 Duration = "5",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 5,   } },
                 Status = "Not Started",
                 ParentId = 23,
+                ResourceId = 1,
                 Predecessor="27",
                 MoneyAllocated = 12000,
                 MoneySpent = 0,
@@ -841,9 +1099,9 @@
                 EndDate = new DateTime(2025, 01, 23),
                 Duration = "7",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 8,   } },
                 Status = "Not Started",
                 ParentId = 23,
+                ResourceId = 2,
                 Predecessor="28",
                 MoneyAllocated = 5000,
                 MoneySpent = 0,
@@ -860,9 +1118,9 @@
                 EndDate = new DateTime(2024, 12, 24),
                 Duration = "6",
                 Progress = 69,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
                 Status = "In Progress",
                 ParentId = 30,
+                ResourceId = 3,
                 MoneyAllocated = 20000,
                 MoneySpent = 10000,
                 Priority = "High",
@@ -875,9 +1133,9 @@
                 EndDate = new DateTime(2025, 01, 01),
                 Duration = "5",
                 Progress = 76,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
                 Status = "In Progress",
                 ParentId = 30,
+                ResourceId = 4,
                 Predecessor="31",
                 MoneyAllocated = 25000,
                 MoneySpent = 19000,
@@ -891,9 +1149,9 @@
                 EndDate = new DateTime(2025, 01, 03),
                 Duration = "2",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
                 Status = "Not Started",
                 ParentId = 30,
+                ResourceId = 5,
                 Predecessor="32",
                 MoneyAllocated = 15000,
                 MoneySpent = 0,
@@ -907,9 +1165,9 @@
                 EndDate = new DateTime(2025, 01, 08),
                 Duration = "3",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
                 Status = "Not Started",
                 ParentId = 30,
+                ResourceId = 1,
                 Predecessor="33",
                 MoneyAllocated = 10000,
                 MoneySpent = 0,
@@ -923,9 +1181,9 @@
                 EndDate = new DateTime(2025, 01, 10),
                 Duration = "2",
                 Progress = 67,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 4,   } },
                 Status = "In Progress",
                 ParentId = 30,
+                ResourceId = 2,
                 Predecessor="34",
                 MoneyAllocated = 8000,
                 MoneySpent = 5360,
@@ -939,9 +1197,9 @@
                 EndDate = new DateTime(2025, 01, 16),
                 Duration = "4",
                 Progress = 89,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
                 Status = "In Progress",
                 ParentId = 30,
+                ResourceId = 3,
                 Predecessor="35",
                 MoneyAllocated = 18000,
                 MoneySpent = 16020,
@@ -955,9 +1213,9 @@
                 EndDate = new DateTime(2025, 01, 24),
                 Duration = "6",
                 Progress = 50,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
                 Status = "Completed",
                 ParentId = 30,
+                ResourceId = 4,
                 MoneyAllocated = 12000,
                 MoneySpent = 12000,
                 Predecessor="36",
@@ -971,9 +1229,9 @@
                 EndDate = new DateTime(2025, 01, 31),
                 Duration = "5",
                 Progress = 100,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 7,   } },
                 Status = "Completed",
                 ParentId = 30,
+                ResourceId = 5,
                 Predecessor="37",
                 MoneyAllocated = 15000,
                 Priority = "Medium",
@@ -990,9 +1248,9 @@
                 EndDate = new DateTime(2024, 12, 26),
                 Duration = "7",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 8,   } },
                 Status = "Not Started",
                 ParentId = 39,
+                ResourceId = 1,
                 MoneyAllocated = 5000,
                 MoneySpent = 0,
                 Priority = "Medium",
@@ -1005,10 +1263,10 @@
                 EndDate = new DateTime(2025, 01, 02),
                 Duration = "5",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 9,   } },
                 Status = "Not Started",
                 Predecessor="40",
                 ParentId = 39,
+                ResourceId = 2,
                 MoneyAllocated = 2000,
                 MoneySpent = 0,
                 Priority = "Medium",
@@ -1021,9 +1279,9 @@
                 EndDate = new DateTime(2025, 01, 13),
                 Duration = "7",
                 Progress = 38,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 3,   } },
                 Status = "In Progress",
                 ParentId = 39,
+                ResourceId = 3,
                 Predecessor="41",
                 MoneyAllocated = 10000,
                 MoneySpent = 3800,
@@ -1037,9 +1295,9 @@
                 EndDate = new DateTime(2025, 01, 22),
                 Duration = "7",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 5,   } },
                 Status = "Not Started",
                 ParentId = 39,
+                ResourceId = 4,
                 Predecessor="42",
                 MoneyAllocated = 7000,
                 MoneySpent = 0,
@@ -1053,9 +1311,9 @@
                 EndDate = new DateTime(2025, 01, 27),
                 Duration = "3",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
                 Status = "Not Started",
                 ParentId = 39,
+                ResourceId = 5,
                 Predecessor="43",
                 MoneyAllocated = 5000,
                 MoneySpent = 0,
@@ -1069,9 +1327,9 @@
                 EndDate = new DateTime(2025, 01, 29),
                 Duration = "2",
                 Progress = 0,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 1,   } },
                 Status = "Not Started",
                 ParentId = 39,
+                ResourceId = 1,
                 Predecessor="44",
                 MoneyAllocated = 3000,
                 MoneySpent = 0,
@@ -1085,9 +1343,9 @@
                 EndDate = new DateTime(2025, 02, 03),
                 Duration = "3",
                 Progress = 58,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 6,   } },
                 Status = "In Progress",
                 ParentId = 39,
+                ResourceId = 2,
                 Predecessor="45",
                 MoneyAllocated = 8000,
                 MoneySpent = 4640,
@@ -1100,10 +1358,10 @@
                 StartDate = new DateTime(2025, 02, 04),
                 EndDate = new DateTime(2025, 02, 05),
                 Duration = "2",
-                Progress = 100,
-                Resources = new List<ResourceAlloacteData>() { new ResourceAlloacteData() { ResourceId = 2,   } },
+                Progress = 60,
                 Status = "Completed",
                 ParentId = 39,
+                ResourceId = 3,
                 Predecessor="46",
                 MoneyAllocated = 10000,
                 MoneySpent = 10000,
@@ -1115,3 +1373,235 @@
     }
     
 }
+<style>
+    
+    .e-rowcell{
+        font-weight: 600 !important;
+        color: #6a1b9a !important;
+    }
+    }
+    .e-active, .e-leftfreeze.e-active {
+        background-color: #d6e0f5 !important;
+    }
+    .e-gridcontent tr:nth-child(even) td {
+        background-color: lavender !important;
+    }
+
+    .e-chart-root-container tr:nth-child(even) {
+        background-color: lavender !important;
+    }
+
+    .e-gridcontent tr:nth-child(odd) td {
+        background-color: aliceblue !important;
+    }
+
+    .e-chart-root-container tr:nth-child(odd) {
+        background-color: aliceblue !important;
+    }
+    .e-label {
+        z-index: 1;
+    }
+
+    .use-case-gantt {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .e-gantt .e-gantt-chart .e-custom-holiday {
+        background-color: #b2dfdb;
+        z-index: 1;
+    }
+
+        .e-gantt .e-gantt-chart .e-custom-holiday .e-span {
+            color: #00796b;
+            font-size: 15px;
+        }
+
+    .e-headercell, .e-rowdragheader {
+        background: #26c6da !important;
+        color: #fff;
+        border-right: 1px solid #fff !important;
+    }
+
+    .e-split-bar, .e-timeline-header-container, .e-weekend-header-cell {
+        background: #26c6da !important;
+    }
+
+    .e-timeline-single-header-cell{
+        color: #fff !important;
+    }
+    .e-connector-line {
+        stroke: #512da8 !important;
+    }
+
+    .e-connector-line-arrow {
+        fill: #512da8 !important;
+    }
+
+    .e-gantt .e-gantt-chart .e-timeline-top-header-cell {
+        border-color: #fff !important;
+    }
+
+
+    .e-tooltip-wrap.e-popup {
+        background-color: #343a40; 
+        border-color: #343a40;
+    }
+
+    .td-tooltip {
+        white-space: normal;
+        word-wrap: break-word;
+    }
+
+    i.e-btn-icon.e-description.e-icons.e-icon-left.e-gantt::before {
+        margin-left: 10px;
+    }
+
+    .e-label.e-indicator-span {
+        margin-top: 18px !important;
+    }
+
+    .row-container {
+        display: flex;
+        align-items: center;
+        height: 70px;
+        background-color: #26c6da;
+        padding: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    
+    @@media (max-width: 768px) {
+        .row-container {
+            flex-direction: column;
+            height: auto;
+        }
+
+            .row-container > * {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+    }
+
+    .activity-filter,
+    .status-filter,
+    .importance-filter,
+    .dropdown,
+    .action-buttons {
+        flex: 1;
+        max-width: 200px;
+    }
+
+    #image-container {
+        position: relative;
+        height: 10px;
+        margin-bottom: 5px;
+    }
+
+    .action-buttons {
+        height: 6px;
+    }
+
+    .custom-dropdown:nth-child(2) {
+        margin-left: auto;
+    }
+
+    .custom-dropdown {
+        width: calc(33% - 10px);
+        max-width: 200px;
+    }
+
+    .custom-dropdown {
+        display: flex;
+        flex-direction: row;
+        height: 50px;
+        width: 100%;
+    }
+
+    .circular-image {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        margin: 2px;
+        vertical-align: middle;
+        cursor: pointer;
+        padding: 0;
+    }
+
+        .circular-image:hover {
+            box-shadow: 0 0 10px rgba(0, 150, 136, 1);
+            border-radius: 50%;
+        }
+
+        .circular-image.e-selected {
+            outline: 2.5px solid #3d5afe;
+        }
+
+    .e-field {
+        width: 100%;
+    }
+
+    .dropdown > .sf-daterangepicker {
+        width: 100%;
+    }
+
+    .row-container > * {
+        margin-right: 10px;
+    }
+
+    .filter-button, .clear-button {
+        width: 45%;
+        height: 30px;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 5px;
+        font-size: 14px;
+        padding: 5px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .filter-button {
+        background-color: #66bb6a;
+    }
+
+    .clear-button {
+        background-color: #ef5350;
+    }
+
+    .filter-button:hover {
+        background-color: #57a05a;
+    }
+
+    .clear-button:hover {
+        background-color: #e53935;
+    }
+
+    @@media (max-width: 768px) {
+        .filter-button, .clear-button {
+            font-size: 12px;
+            height: 30px;
+        }
+
+        #image-container {
+            position: relative;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .row-container > * {
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+    }
+
+</style>
